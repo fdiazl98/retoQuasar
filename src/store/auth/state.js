@@ -2,6 +2,7 @@ export default function () {
   return {
     me: {},
     token: '',
-    isAuthenticated: false
+    isAuthenticated: false,
+    username:null
   }
 }

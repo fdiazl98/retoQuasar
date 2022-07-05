@@ -6,6 +6,7 @@
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
+      @row-click="clickRow"
     >
       <template v-slot:top="props">
         <div class="col-2 q-table__title">Movimientos</div>
@@ -34,7 +35,7 @@
             label="Id Producto"
           />
           <q-toggle v-model="visibleColumns" val="cantidad" label="Cantidad" />
-         
+
           <!-- <q-toggle v-model="visibleColumns" val="iron" label="Iron" /> -->
         </div>
 
@@ -63,6 +64,64 @@
         />
       </template>
     </q-table>
+
+    <q-dialog v-model="mostrarModal">
+      <q-card>
+        <div class="q-pa-md" style="max-width: 600px">
+          <h5 style="width: 500px">Editar</h5>
+          <q-form class="q-gutter-md">
+            <q-input filled v-model="text" label="Id" hint="Id" />
+
+            <q-input filled v-model="text" hint="Fecha y hora" type="date" />
+
+            <q-input
+              filled
+              v-model="text"
+              label="Id tipo movimiento"
+              hint="Id tipo movimiento"
+            />
+
+            <q-input
+              filled
+              v-model="text"
+              label="Observaciones"
+              hint="Observaciones"
+              type="textarea"
+            />
+
+            <q-input
+              filled
+              v-model="text"
+              label="Id cantidad"
+              hint="Id cantidad"
+            />
+
+            <q-input
+              filled
+              v-model="text"
+              label="Cantidad"
+              hint="Cantidad"
+              type="number"
+            />
+
+            <div>
+              <q-btn
+                label="Salir"
+                color="primary"
+                @click="mostrarModal = false"
+              />
+              <q-btn
+                label="Reset"
+                type="reset"
+                color="primary"
+                flat
+                class="q-ml-sm"
+              />
+            </div>
+          </q-form>
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -218,6 +277,14 @@ const rows = [
 
 export default {
   setup() {
+    const mostrarModal = ref(false);
+
+    // const $q = useQuasar();
+    const clickRow = (evt, row, index) => {
+      // showEdit.value = false;
+      console.log(row);
+      mostrarModal.value = true;
+    };
     return {
       visibleColumns: ref([
         "fechaHora",
@@ -230,6 +297,8 @@ export default {
       columns,
       rows,
       alert,
+      mostrarModal,
+      clickRow,
     };
   },
 };

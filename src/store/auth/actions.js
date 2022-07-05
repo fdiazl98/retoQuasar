@@ -15,6 +15,7 @@ export const doLogin = async ({ commit, dispatch }, payload) => {
       commit("setToken", token);
       api.defaults.headers.common.Authorization = "JWT " + token.id;
       dispatch("getMe", token);
+
     });
 
   // commit("setToken", token);

@@ -1,8 +1,8 @@
 <template>
-  <img src="~assets/wave.png" class="wave" alt="login-wave" />
+  <img src="~assets/wave.jpg" class="wave" alt="login-wave" />
   <div class="row" style="height: 90vh">
     <div class="col-0 col-md-6 flex justify-center content-center">
-      <img src="~assets/login.svg" class="responsive" alt="login-image" />
+      <!-- <img src="~assets/login.svg" class="responsive" alt="login-image" /> -->
     </div>
     <div
       v-bind:class="{
@@ -15,7 +15,7 @@
       >
         <q-card-section>
           <q-avatar size="103px" class="absolute-center shadow-10">
-            <img src="~assets/avatar.svg" alt="avatar" />
+            <img src="~assets/descarga.jpg" alt="avatar" />
           </q-avatar>
         </q-card-section>
         <q-card-section>
@@ -59,8 +59,10 @@ import { mapActions } from "vuex";
 let $q;
 
 export default {
+  
   name: "Login",
   data() {
+    const $q = useQuasar()
     return {
       login: {
         username: "clefairy",
@@ -82,10 +84,14 @@ export default {
           message: "A senha deve ter 6 ou mais caracteres.",
         });
       } else {
+        $q.localStorage.set("username", this.login.username);
+        $q.localStorage.set("password", this.login.password);
         try {
           await this.doLogin(this.login);
-          const toPath = this.$route.query.to || "/admin";
+          const toPath = this.$route.query.to || "/Home";
           this.$router.push(toPath);
+
+      
         } catch (err) {
           if (err.response.data.detail) {
             $q.notify({
@@ -110,5 +116,6 @@ export default {
   left: 0;
   bottom: 0;
   z-index: -1;
+  width: 100%;
 }
 </style>

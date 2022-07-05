@@ -6,8 +6,8 @@
 
         <q-toolbar-title> Quasar App </q-toolbar-title>
 
-        <q-btn stretch flat to="/login" v-if="!isAuthenticated">Login</q-btn>
-        <q-btn stretch flat @click="logout" v-else>Logout</q-btn>
+        <!-- <q-btn stretch flat  v-if="!isAuthenticated">Logout</q-btn> -->
+        <q-btn stretch flat to="/login" @click="logout" >Logout</q-btn>
       </q-toolbar>
     </q-header>
 
