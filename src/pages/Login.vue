@@ -88,7 +88,7 @@ export default {
         $q.localStorage.set("password", this.login.password);
         try {
           await this.doLogin(this.login);
-          const toPath = this.$route.query.to || "/Home";
+          const toPath = this.$route.query.to || "/admin";
           this.$router.push(toPath);
 
       
