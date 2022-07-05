@@ -1,0 +1,50 @@
+import { api } from "boot/axios";
+import { axios } from "axios";
+
+export const doLogin = async ({ commit, dispatch }, payload) => {
+  //aqui se recibe el token de la api
+  // await api.post('/api/v1/jwt/create/', payload).then(response => {
+  //   const token = response.data
+
+  // const token = "i1j3kmrk1m3kr1n3";
+  await api
+    .get(`https://pokeapi.co/api/v2/pokemon/${payload.username}`)
+    .then((response) => {
+      const token = response.data;
+      console.log(token);
+      commit("setToken", token);
+      api.defaults.headers.common.Authorization = "JWT " + token.id;
+      dispatch("getMe", token);
+    });
+
+  // commit("setToken", token);
+  //   api.defaults.headers.common.Authorization = 'JWT ' + token.access
+  // dispatch("getMe", token);
+  // })
+};
+
+export const signOut = ({ commit }) => {
+  // api.defaults.headers.common.Authorization = ''
+  commit("removeToken");
+  console.log("singout");
+};
+
+export const getMe = async ({ commit }, token) => {
+  // await api.get('/api/v1/users/me/', token.access).then(response => {
+  //   commit('setMe', response.data)
+  // })
+  commit("setMe", token);
+  console.log("getme");
+};
+
+export const init = async ({ commit, dispatch }) => {
+  // const token = localStorage.getItem('token')
+  // if (token) {
+  //   await commit('setToken', JSON.parse(token))
+  //   api.defaults.headers.common.Authorization = 'JWT ' + JSON.parse(token).access
+  //   dispatch('getMe', JSON.parse(token))
+  // } else {
+  //   commit('removeToken')
+  // }
+  console.log("init");
+};
