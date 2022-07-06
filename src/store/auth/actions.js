@@ -3,8 +3,6 @@ import { axios } from "axios";
 
 export const doLogin = async ({ commit, dispatch }, payload) => {
   //aqui se recibe el token de la api
-  // await api.post('/api/v1/jwt/create/', payload).then(response => {
-  //   const token = response.data
   await api.post("/api/Login", payload).then((response) => {
     const token = response.data.token;
     console.log(response.data);
@@ -35,18 +33,18 @@ export const getMe = async ({ commit }, token) => {
   // console.log(token);
   return "data";
 };
-export const getData = async (token) => {
-  let resposeGlobal;
-  await api.get("api/Bodegas/Get", token).then((response) => {
-    // commit('setMe', response.data)
-    // console.log(response);
-    resposeGlobal = response;
-  });
-  // console.log(vari);
-  return resposeGlobal.data;
+// // export const getData = async (token) => {
+// //   let resposeGlobal;
+// //   await api.get("api/Bodegas/Get", token).then((response) => {
+// //     // commit('setMe', response.data)
+// //     // console.log(response);
+// //     resposeGlobal = response;
+// //   });
+// //   // console.log(vari);
+// //   return resposeGlobal.data;
 
-  // commit("setMe", token);
-};
+// //   // commit("setMe", token);
+// // };
 
 export const init = async ({ commit, dispatch }) => {
   const token = window.localStorage.getItem('token')
