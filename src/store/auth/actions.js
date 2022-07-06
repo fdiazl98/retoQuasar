@@ -10,7 +10,8 @@ export const doLogin = async ({ commit, dispatch }, payload) => {
     console.log(response.data);
     commit("setToken", token);
     api.defaults.headers.common.Authorization = "JWT " + token.id;
-    dispatch("getMe", response.data);
+    api.defaults.headers.common.Authorization = "Bearer " + token;
+    dispatch("getMe", token);
   });
 
   // commit("setToken", token);
@@ -31,6 +32,19 @@ export const getMe = async ({ commit }, token) => {
   // })
   commit("setMe", token);
   console.log("getme");
+  return "data";
+};
+export const getData = async (token) => {
+  let resposeGlobal;
+  await api.get("api/Bodegas/Get", token).then((response) => {
+    // commit('setMe', response.data)
+    // console.log(response);
+    resposeGlobal = response;
+  });
+  // console.log(vari);
+  return resposeGlobal.data;
+
+  // commit("setMe", token);
 };
 
 export const init = async ({ commit, dispatch }) => {
