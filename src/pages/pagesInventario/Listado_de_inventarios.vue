@@ -32,37 +32,39 @@
       <q-card>
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">Editar</h5>
-          <q-form class="q-gutter-md">
+          <q-form class="q-gutter-md" @submit.prevent="CreateRow">
             <q-input
               filled
-              v-model="text"
+              v-model="fila.idArticulo"
               label="Id articulo"
               hint="Id articulo"
             />
 
-            <q-input filled v-model="text" label="Id bodega" hint="Id bodega" />
+            <q-input
+              filled
+              v-model="fila.idBodega"
+              label="Id bodega"
+              hint="Id bodega"
+            />
 
-            <q-input filled v-model="text" label="Saldo" hint="Saldo" />
+            <q-input filled v-model="fila.saldo" label="Saldo" hint="Saldo" />
 
             <q-input
               filled
-              v-model="text"
-              label="Fecha ultimo movimiento"
+              v-model="fila.fechaultimomovimiento"
               hint="Fecha ultimo movimiento"
+              type="date"
             />
 
             <div>
-              <q-btn
-                label="Salir"
-                color="primary"
-                @click="mostrarModal = false"
-              />
+              <q-btn label="agregar" color="primary" type="submit" />
               <q-btn
                 label="Reset"
                 type="reset"
                 color="primary"
                 flat
                 class="q-ml-sm"
+                @click="mostrarModal = false"
               />
             </div>
           </q-form>
@@ -138,23 +140,37 @@ export default {
 
   data() {
     return {
-      listado:[]
-  //     token:
-  //       "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUHJ1ZWJhNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNjU3MTQ0NDcxfQ.TF5jQDuVbsI_SKG3wjLoFuwzAlizGDbNnrlxWwbwMFmaAlchbNMpon6Lm7UTVuA5ZLWNUU8lRQ9eH9NTLcN1vg",
+      listado: [],
+      fila: {
+        idArticulo: "",
+        idBodega: "",
+        saldo: "",
+        fechaultimomovimiento: "",
+      },
+      //     token:
+      //       "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUHJ1ZWJhNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNjU3MTQ0NDcxfQ.TF5jQDuVbsI_SKG3wjLoFuwzAlizGDbNnrlxWwbwMFmaAlchbNMpon6Lm7UTVuA5ZLWNUU8lRQ9eH9NTLcN1vg",
     };
   },
 
   methods: {
     // ...mapActions("auth", ["getData"]),
     async submitForm() {
-
       await api.get("/api/Inventario/Get").then((response) => {
-        console.log("0========================prueba============================")
+        console.log(
+          "0========================prueba============================"
+        );
         console.log(response.data);
-        return this.listado=response.data
+        return (this.listado = response.data);
       });
 
       // rows=lista
+    },
+
+    async CreateRow() {
+      console.log(this.fila);
+      await api.post("api/Inventario/Crear", this.fila).then((response) => {
+        console.log(response);
+      });
     },
   },
   mounted() {
