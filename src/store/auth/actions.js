@@ -3,13 +3,11 @@ import { axios } from "axios";
 
 export const doLogin = async ({ commit, dispatch }, payload) => {
   //aqui se recibe el token de la api
-  // await api.post('/api/v1/jwt/create/', payload).then(response => {
-  //   const token = response.data
   await api.post("/api/Login", payload).then((response) => {
     const token = response.data.token;
     console.log(response.data);
     commit("setToken", token);
-    api.defaults.headers.common.Authorization = "JWT " + token.id;
+    api.defaults.headers.common.Authorization = "JWT " + token;
     api.defaults.headers.common.Authorization = "Bearer " + token;
     dispatch("getMe", token);
   });
@@ -34,27 +32,27 @@ export const getMe = async ({ commit }, token) => {
   console.log("getme");
   return "data";
 };
-export const getData = async (token) => {
-  let resposeGlobal;
-  await api.get("api/Bodegas/Get", token).then((response) => {
-    // commit('setMe', response.data)
-    // console.log(response);
-    resposeGlobal = response;
-  });
-  // console.log(vari);
-  return resposeGlobal.data;
+// // export const getData = async (token) => {
+// //   let resposeGlobal;
+// //   await api.get("api/Bodegas/Get", token).then((response) => {
+// //     // commit('setMe', response.data)
+// //     // console.log(response);
+// //     resposeGlobal = response;
+// //   });
+// //   // console.log(vari);
+// //   return resposeGlobal.data;
 
-  // commit("setMe", token);
-};
+// //   // commit("setMe", token);
+// // };
 
 export const init = async ({ commit, dispatch }) => {
-  // const token = localStorage.getItem('token')
-  // if (token) {
-  //   await commit('setToken', JSON.parse(token))
-  //   api.defaults.headers.common.Authorization = 'JWT ' + JSON.parse(token).access
-  //   dispatch('getMe', JSON.parse(token))
-  // } else {
-  //   commit('removeToken')
-  // }
+  const token = localStorage.getItem("token");
+  if (token) {
+    await commit("setToken", JSON.parse(token));
+    api.defaults.headers.common.Authorization = "Bearer " + JSON.parse(token);
+    dispatch("getMe", JSON.parse(token));
+  } else {
+    commit("removeToken");
+  }
   console.log("init");
 };
