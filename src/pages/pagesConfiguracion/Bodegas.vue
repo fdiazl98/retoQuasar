@@ -139,8 +139,7 @@ export default {
     // showEdit.value = false;
     // submitForm();
     const mostrarModal = ref(false);
-    const lista = ref(null);
-
+    // const lista = ref(null);
     // const $q = useQuasar();
     const clickRow = (evt, row, index) => {
       // showEdit.value = false;
