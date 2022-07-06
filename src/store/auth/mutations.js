@@ -2,9 +2,7 @@
 export const setToken = (state, token) => {
   state.token = token;
   state.isAuthenticated = true;
-  console.log(token.id);
-  window.localStorage.setItem("token", JSON.stringify(token.id));
-  // window.localStorage.setItem("username", this.login.username)
+  window.localStorage.setItem("token", JSON.stringify(token));
 };
 
 export const removeToken = (state, token) => {

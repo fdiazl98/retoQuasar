@@ -5,18 +5,14 @@ export const doLogin = async ({ commit, dispatch }, payload) => {
   //aqui se recibe el token de la api
   // await api.post('/api/v1/jwt/create/', payload).then(response => {
   //   const token = response.data
-
-  // const token = "i1j3kmrk1m3kr1n3";
-  await api
-    .get(`https://pokeapi.co/api/v2/pokemon/${payload.username}`)
-    .then((response) => {
-      const token = response.data;
-      console.log(token);
-      commit("setToken", token);
-      api.defaults.headers.common.Authorization = "JWT " + token.id;
-      dispatch("getMe", token);
-
-    });
+  await api.post("/api/Login", payload).then((response) => {
+    const token = response.data.token;
+    console.log(response.data);
+    commit("setToken", token);
+    api.defaults.headers.common.Authorization = "JWT " + token.id;
+    api.defaults.headers.common.Authorization = "Bearer " + token;
+    dispatch("getMe", token);
+  });
 
   // commit("setToken", token);
   //   api.defaults.headers.common.Authorization = 'JWT ' + token.access
@@ -36,6 +32,19 @@ export const getMe = async ({ commit }, token) => {
   // })
   commit("setMe", token);
   console.log("getme");
+  return "data";
+};
+export const getData = async (token) => {
+  let resposeGlobal;
+  await api.get("api/Bodegas/Get", token).then((response) => {
+    // commit('setMe', response.data)
+    // console.log(response);
+    resposeGlobal = response;
+  });
+  // console.log(vari);
+  return resposeGlobal.data;
+
+  // commit("setMe", token);
 };
 
 export const init = async ({ commit, dispatch }) => {

@@ -65,8 +65,8 @@ export default {
     const $q = useQuasar()
     return {
       login: {
-        username: "clefairy",
-        password: "a2d4g6j8",
+        username: "",
+        password: "",
       },
     };
   },
@@ -78,7 +78,7 @@ export default {
           type: "negative",
           message: "Os dados informados são inválidos.",
         });
-      } else if (this.login.password.length < 6) {
+      } else if (this.login.password.length < 3) {
         $q.notify({
           type: "negative",
           message: "A senha deve ter 6 ou mais caracteres.",
