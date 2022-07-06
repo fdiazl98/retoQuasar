@@ -179,7 +179,7 @@ export default {
       // });
     },
   },
-  mounted() {
+  beforeMount() {
     this.submitForm();
   },
 };

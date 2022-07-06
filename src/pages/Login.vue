@@ -59,7 +59,7 @@ import { mapActions } from "vuex";
 let $q;
 
 export default {
-  
+
   name: "Login",
   data() {
     const $q = useQuasar()
@@ -76,12 +76,12 @@ export default {
       if (!this.login.username || !this.login.password) {
         $q.notify({
           type: "negative",
-          message: "Os dados informados são inválidos.",
+          message: "Los datos ingresados no son validos.",
         });
       } else if (this.login.password.length < 3) {
         $q.notify({
           type: "negative",
-          message: "A senha deve ter 6 ou mais caracteres.",
+          message: "La contraseña debe ser mayor a 6",
         });
       } else {
         $q.localStorage.set("username", this.login.username);
@@ -91,7 +91,7 @@ export default {
           const toPath = this.$route.query.to || "/admin";
           this.$router.push(toPath);
 
-      
+
         } catch (err) {
           if (err.response.data.detail) {
             $q.notify({

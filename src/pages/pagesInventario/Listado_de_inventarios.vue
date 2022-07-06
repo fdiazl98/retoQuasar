@@ -20,7 +20,7 @@
         class="gutter-md"
         title="Listado inventarios"
         dense
-        :rows="rows"
+        :rows="listado"
         :columns="columns"
         row-key="name"
         @row-click="clickRow"
@@ -28,14 +28,19 @@
       </q-table>
     </div>
 
-    <q-dialog v-model="mostrarModal" >
+    <q-dialog v-model="mostrarModal">
       <q-card>
         <div class="q-pa-md" style="max-width: 600px">
-          <h5 style="width:500px">Editar</h5>
+          <h5 style="width: 500px">Editar</h5>
           <q-form class="q-gutter-md">
-            <q-input filled v-model="text" label="Id articulo" hint="Id articulo"/>
+            <q-input
+              filled
+              v-model="text"
+              label="Id articulo"
+              hint="Id articulo"
+            />
 
-            <q-input filled v-model="text" label="Id bodega" hint="Id bodega"  />
+            <q-input filled v-model="text" label="Id bodega" hint="Id bodega" />
 
             <q-input filled v-model="text" label="Saldo" hint="Saldo" />
 
@@ -69,20 +74,21 @@
 </template>
 
 <script>
+let lista;
 const columns = [
   {
-    name: "id_articulo",
+    name: "idArticulo",
     required: true,
     label: "Id articulo",
     align: "center",
-    field: "id_articulo",
+    field: "idArticulo",
     sortable: true,
   },
   {
-    name: "id_bodega",
+    name: "idBodega",
     label: "Id bodega",
     align: "center",
-    field: "id_bodega",
+    field: "idBodega",
     sortable: true,
   },
   {
@@ -93,55 +99,20 @@ const columns = [
     sortable: true,
   },
   {
-    name: "fechaUltimoMovimiento",
+    name: "fechaultimomovimiento",
     label: "Fecha Ultimo Movimiento",
     align: "center",
-    field: "fechaUltimoMovimiento",
+    field: "fechaultimomovimiento",
     sortable: true,
   },
 ];
 
-const rows = [
-  {
-    id_articulo: 1,
-    id_bodega: 11,
-    saldo: 1000,
-    fechaUltimoMovimiento: "09-01-2021",
-  },
-  {
-    id_articulo: 2,
-    id_bodega: 112,
-    saldo: 2000,
-    fechaUltimoMovimiento: "09-01-2021",
-  },
-  {
-    id_articulo: 3,
-    id_bodega: 113,
-    saldo: 3000,
-    fechaUltimoMovimiento: "09-01-2021",
-  },
-  {
-    id_articulo: 4,
-    id_bodega: 114,
-    saldo: 4000,
-    fechaUltimoMovimiento: "09-01-2021",
-  },
-  {
-    id_articulo: 5,
-    id_bodega: 115,
-    saldo: 5000,
-    fechaUltimoMovimiento: "09-01-2021",
-  },
-  {
-    id_articulo: 6,
-    id_bodega: 116,
-    saldo: 6000,
-    fechaUltimoMovimiento: "09-01-2021",
-  },
-];
+let rows = [];
 
 import { useQuasar } from "quasar";
 import { ref } from "@vue/reactivity";
+import { mapActions } from "vuex";
+import { api } from "boot/axios";
 
 export default {
   setup() {
@@ -163,6 +134,31 @@ export default {
       mostrarModal,
       clickRow,
     };
+  },
+
+  data() {
+    return {
+      listado:[]
+  //     token:
+  //       "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUHJ1ZWJhNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNjU3MTQ0NDcxfQ.TF5jQDuVbsI_SKG3wjLoFuwzAlizGDbNnrlxWwbwMFmaAlchbNMpon6Lm7UTVuA5ZLWNUU8lRQ9eH9NTLcN1vg",
+    };
+  },
+
+  methods: {
+    // ...mapActions("auth", ["getData"]),
+    async submitForm() {
+
+      await api.get("/api/Inventario/Get").then((response) => {
+        console.log("0========================prueba============================")
+        console.log(response.data);
+        return this.listado=response.data
+      });
+
+      // rows=lista
+    },
+  },
+  mounted() {
+    this.submitForm();
   },
 };
 </script>

@@ -2,7 +2,7 @@
   <div class="q-pa-md">
     <q-table
       title="Movimientos"
-      :rows="rows"
+      :rows="listado"
       :columns="columns"
       row-key="name"
       :visible-columns="visibleColumns"
@@ -16,12 +16,12 @@
         <div v-if="$q.screen.gt.xs" class="col">
           <q-toggle
             v-model="visibleColumns"
-            val="fechaHora"
+            val="fechahora"
             label="Fecha y Hora"
           />
           <q-toggle
             v-model="visibleColumns"
-            val="id_tipoMovimiento"
+            val="idTipomovimiento"
             label="Id Tipo Movimiento"
           />
           <q-toggle
@@ -31,10 +31,15 @@
           />
           <q-toggle
             v-model="visibleColumns"
-            val="id_producto"
-            label="Id Producto"
+            val="idArticulo"
+            label="Id Articulo"
           />
           <q-toggle v-model="visibleColumns" val="cantidad" label="Cantidad" />
+          <q-toggle
+            v-model="visibleColumns"
+            val="idBodega"
+            label="Id Bodega"
+          />
 
           <!-- <q-toggle v-model="visibleColumns" val="iron" label="Iron" /> -->
         </div>
@@ -126,6 +131,7 @@
 </template>
 
 <script>
+import { api } from "boot/axios";
 import { ref } from "vue";
 
 const columns = [
@@ -139,16 +145,16 @@ const columns = [
     sortable: true,
   },
   {
-    name: "fechaHora",
+    name: "fechahora",
     align: "center",
     label: "Fecha y hora",
-    field: "fechaHora",
+    field: "fechahora",
     sortable: true,
   },
   {
-    name: "id_tipoMovimiento",
+    name: "idTipomovimiento",
     label: "Id tipo movimiento",
-    field: "id_tipoMovimiento",
+    field: "idTipomovimiento",
     sortable: true,
     align: "center",
   },
@@ -160,16 +166,16 @@ const columns = [
     align: "center",
   },
   {
-    name: "id_producto",
-    label: "Id producto",
-    field: "id_producto",
+    name: "idArticulo",
+    label: "Id Articulo",
+    field: "idArticulo",
     sortable: true,
     align: "center",
   },
   {
-    name: "id_bodega",
+    name: "idBodega",
     label: "Id bodega",
-    field: "id_bodega",
+    field: "idBodega",
     align: "center",
   },
   {
@@ -182,98 +188,7 @@ const columns = [
   },
 ];
 
-const rows = [
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-  {
-    id: 1,
-    fechaHora: "12-09-2021",
-    id_tipoMovimiento: 6,
-    observaciones: "solo relleno de la tabla mientras se espera por el JSON",
-    id_producto: 11,
-    id_bodega: 111,
-    cantidad: 23,
-  },
-];
+const rows = [];
 
 export default {
   setup() {
@@ -287,12 +202,13 @@ export default {
     };
     return {
       visibleColumns: ref([
-        "fechaHora",
-        "id_tipoMovimiento",
-        "Cantidad",
-        "id_producto",
+        "fechahora",
+        "idTipomovimiento",
+        "cantidad",
+        "idArticulo",
         "observaciones",
         "cantidad",
+        "idBodega",
       ]),
       columns,
       rows,
@@ -300,6 +216,32 @@ export default {
       mostrarModal,
       clickRow,
     };
+  },
+
+  data() {
+    return {
+      listado: [],
+      //     token:
+      //       "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUHJ1ZWJhNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNjU3MTQ0NDcxfQ.TF5jQDuVbsI_SKG3wjLoFuwzAlizGDbNnrlxWwbwMFmaAlchbNMpon6Lm7UTVuA5ZLWNUU8lRQ9eH9NTLcN1vg",
+    };
+  },
+
+  methods: {
+    // ...mapActions("auth", ["getData"]),
+    async submitForm() {
+      await api.get("/api/Movimiento/Get").then((response) => {
+        console.log(
+          "0========================prueba============================"
+        );
+        console.log(response.data);
+        return (this.listado = response.data);
+      });
+
+      // rows=lista
+    },
+  },
+  mounted() {
+    this.submitForm();
   },
 };
 </script>

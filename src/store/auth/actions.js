@@ -9,8 +9,9 @@ export const doLogin = async ({ commit, dispatch }, payload) => {
     const token = response.data.token;
     console.log(response.data);
     commit("setToken", token);
-    api.defaults.headers.common.Authorization = "JWT " + token.id;
+    // api.defaults.headers.common.Authorization = "JWT " + token.id;
     api.defaults.headers.common.Authorization = "Bearer " + token;
+
     dispatch("getMe", token);
   });
 
@@ -31,7 +32,7 @@ export const getMe = async ({ commit }, token) => {
   //   commit('setMe', response.data)
   // })
   commit("setMe", token);
-  console.log("getme");
+  // console.log(token);
   return "data";
 };
 export const getData = async (token) => {
@@ -48,13 +49,13 @@ export const getData = async (token) => {
 };
 
 export const init = async ({ commit, dispatch }) => {
-  // const token = localStorage.getItem('token')
-  // if (token) {
-  //   await commit('setToken', JSON.parse(token))
-  //   api.defaults.headers.common.Authorization = 'JWT ' + JSON.parse(token).access
-  //   dispatch('getMe', JSON.parse(token))
-  // } else {
-  //   commit('removeToken')
-  // }
+  const token = window.localStorage.getItem('token')
+  if (token) {
+    await commit('setToken', JSON.parse(token))
+    api.defaults.headers.common.Authorization = 'Bearer ' + JSON.parse(token)
+    dispatch('getMe', JSON.parse(token))
+  } else {
+    commit('removeToken')
+  }
   console.log("init");
 };
