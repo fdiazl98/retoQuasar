@@ -10,9 +10,15 @@
           </template>
         </q-input> -->
 
-        <q-input v-model="date" filled type="date" />
+        <!-- <q-input v-model="date" filled type="date" /> -->
       </div>
-      <q-btn label="Submit" type="submit" color="primary" margin-top="10px" />
+      <q-btn
+        label="Agregar"
+        type="submit"
+        color="primary"
+        margin-top="10px"
+        @click="clickAgregar"
+      />
     </div>
 
     <div class="q-pa-md">
@@ -31,7 +37,7 @@
     <q-dialog v-model="mostrarModal">
       <q-card>
         <div class="q-pa-md" style="max-width: 600px">
-          <h5 style="width: 500px">Editar</h5>
+          <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
             <q-input
               filled
@@ -48,22 +54,20 @@
             <q-input
               filled
               v-model="fila.fechacreacion"
-              label="Fecha de creacion"
-              hint="Id bodega"
+              hint="Fecha de creacion"
               type="date"
             />
             <q-input
               filled
               v-model="fila.fechamodificacion"
-              label="Fecha de modificacion"
               type="date"
-              hint="Id bodega"
+              hint="Fecha de modificacion"
             />
             <q-input filled v-model="fila.foto" label="Foto" hint="Id bodega" />
             <q-input filled v-model="fila.id" label="Id" hint="Id bodega" />
 
             <div>
-              <q-btn label="Actualizar" color="primary" type="submit" />
+              <q-btn :label="accion" color="primary" type="submit" />
               <q-btn
                 label="Salir"
                 type="reset"
@@ -125,6 +129,14 @@ const columns = [
     field: "id",
     sortable: true,
   },
+  {
+    name: "Edicion",
+    required: true,
+    label: "Eliminar",
+    align: "center",
+    field: "Edicion",
+    sortable: true,
+  },
 ];
 
 import { useQuasar } from "quasar";
@@ -134,23 +146,12 @@ import { mapActions } from "vuex";
 
 export default {
   setup() {
-    // showEdit.value = false;
-    // submitForm();
-    const mostrarModal = ref(false);
     // const lista = ref(null);
     // const $q = useQuasar();
-    const clickRow = (evt, row, index) => {
-      // showEdit.value = false;
-      console.log(row.codigo);
-      mostrarModal.value = true;
-    };
-
     return {
       columns,
       date: "",
       search: "",
-      mostrarModal,
-      clickRow,
     };
   },
   data() {
@@ -159,12 +160,14 @@ export default {
       listado: [],
       fila: {
         codigo: "",
-        desciprcion: "",
+        descripcion: "",
         fechacreacion: "",
         fechamodificacion: "",
         foto: "",
         id: "",
       },
+      accion: "",
+      mostrarModal: false,
     };
   },
   methods: {
@@ -179,17 +182,37 @@ export default {
         return (this.listado = response.data);
       });
     },
-    async UpdateRow() {
-      // await api.get("api/Bodegas/Post").then((response) => {
-      //   console.log(response);
-      //   return (this.listado = response.data);
-      // });
-    },
     async CreateRow() {
-      console.log(this.fila);
-      await api.post("api/Bodegas/Crear", this.fila).then((response) => {
-        console.log(response);
-      });
+      await api
+        .post(`api/Bodegas/${this.accion}`, this.fila)
+        .then((response) => {
+          console.log(response);
+          this.submitForm();
+          this.fila = {
+            codigo: "",
+            descripcion: "",
+            fechacreacion: "",
+            fechamodificacion: "",
+            foto: "",
+            id: "",
+          };
+        });
+    },
+    clickAgregar() {
+      this.accion = "Crear";
+      this.mostrarModal = true;
+    },
+    clickRow(evt, row, index) {
+      this.accion = "Actualizar";
+      this.mostrarModal = true;
+      this.fila = {
+        codigo: row.codigo,
+        descripcion: row.descripcion,
+        fechacreacion: row.fechacreacion,
+        fechamodificacion: row.fechamodificacion,
+        foto: row.foto,
+        id: row.id,
+      };
     },
   },
   mounted() {
