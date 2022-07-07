@@ -1,69 +1,73 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px">
-        <!-- <q-input class="outlined" v-model="text" label="Outlined" />
-
-        <q-input class="input input-sm" v-model="search" filled type="search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input> -->
-
-        <q-input v-model="date" filled type="date" />
-      </div>
-      <q-btn label="Submit" type="submit" color="primary" margin-top="10px" />
+      <div class="q-gutter-md" style="max-width: 300px"></div>
+      <q-btn
+        label="Agregar"
+        type="submit"
+        color="primary"
+        margin-top="10px"
+        @click="clickAgregar"
+      />
     </div>
 
     <div class="q-pa-md">
-      <q-table
+      <!-- <q-table
         class="gutter-md"
-        title="Listado inventarios"
+        title="Bodegas"
         dense
         :rows="listado"
         :columns="columns"
         row-key="name"
         @row-click="clickRow"
       >
+      </q-table> -->
+      <q-table
+        title="Bodegas"
+        :rows="listado"
+        :columns="columns"
+        :row-key="name"
+      >
+        <template v-slot:body="props">
+          <q-tr @click="clickRow(props.row)">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <div v-show="col.name != 'foto'">
+                {{ col.value }}
+              </div>
+              <div v-show="col.name == 'foto'">
+                <img :src="col.value" alt="" />
+              </div>
+            </q-td>
+            <q-td auto-width></q-td>
+          </q-tr>
+        </template>
       </q-table>
     </div>
 
     <q-dialog v-model="mostrarModal">
       <q-card>
         <div class="q-pa-md" style="max-width: 600px">
-          <h5 style="width: 500px">Editar</h5>
+          <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
-            <q-input
-              filled
-              v-model="fila.codigo"
-              label="Codigo"
-              hint="Id bodega"
-            />
-            <q-input
-              filled
-              v-model="fila.descripcion"
-              label="Descripcion"
-              hint="Id bodega"
-            />
+            <q-input filled v-model="fila.codigo" label="Codigo" />
+            <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
               filled
               v-model="fila.fechacreacion"
-              label="Fecha de creacion"
-              hint="Id bodega"
+              hint="Fecha de creacion"
               type="date"
             />
             <q-input
               filled
               v-model="fila.fechamodificacion"
-              label="Fecha de modificacion"
               type="date"
-              hint="Id bodega"
+              hint="Fecha de modificacion"
             />
-            <q-input filled v-model="fila.foto" label="Foto" hint="Id bodega" />
-            <q-input filled v-model="fila.id" label="Id" hint="Id bodega" />
+            <q-input filled v-model="fila.foto" label="Foto" />
+            <q-input filled v-model="fila.id" label="Id" />
 
             <div>
-              <q-btn label="Actualizar" color="primary" type="submit" />
+              <q-btn :label="accion" color="primary" type="submit" />
               <q-btn
                 label="Salir"
                 type="reset"
@@ -134,23 +138,12 @@ import { mapActions } from "vuex";
 
 export default {
   setup() {
-    // showEdit.value = false;
-    // submitForm();
-    const mostrarModal = ref(false);
     // const lista = ref(null);
     // const $q = useQuasar();
-    const clickRow = (evt, row, index) => {
-      // showEdit.value = false;
-      console.log(row.codigo);
-      mostrarModal.value = true;
-    };
-
     return {
       columns,
       date: "",
       search: "",
-      mostrarModal,
-      clickRow,
     };
   },
   data() {
@@ -159,12 +152,14 @@ export default {
       listado: [],
       fila: {
         codigo: "",
-        desciprcion: "",
+        descripcion: "",
         fechacreacion: "",
         fechamodificacion: "",
         foto: "",
         id: "",
       },
+      accion: "",
+      mostrarModal: false,
     };
   },
   methods: {
@@ -179,17 +174,47 @@ export default {
         return (this.listado = response.data);
       });
     },
-    async UpdateRow() {
-      // await api.get("api/Bodegas/Post").then((response) => {
-      //   console.log(response);
-      //   return (this.listado = response.data);
-      // });
-    },
     async CreateRow() {
-      console.log(this.fila);
-      await api.post("api/Bodegas/Crear", this.fila).then((response) => {
-        console.log(response);
-      });
+      await api
+        .post(`api/Bodegas/${this.accion}`, this.fila)
+        .then((response) => {
+          console.log(response);
+          this.submitForm();
+          this.fila = {
+            codigo: "",
+            descripcion: "",
+            fechacreacion: "",
+            fechamodificacion: "",
+            foto: "",
+            id: "",
+          };
+          this.mostrarModal = false;
+        });
+    },
+    clickAgregar() {
+      this.accion = "Crear";
+      this.mostrarModal = true;
+      this.fila = {
+        codigo: "",
+        descripcion: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+        foto: "",
+        id: "",
+      };
+    },
+    clickRow(row) {
+      console.log(row);
+      this.accion = "Actualizar";
+      this.mostrarModal = true;
+      this.fila = {
+        codigo: row.codigo,
+        descripcion: row.descripcion,
+        fechacreacion: row.fechacreacion,
+        fechamodificacion: row.fechamodificacion,
+        foto: row.foto,
+        id: row.id,
+      };
     },
   },
   beforeMount() {
@@ -197,3 +222,10 @@ export default {
   },
 };
 </script>
+<style>
+img {
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+}
+</style>

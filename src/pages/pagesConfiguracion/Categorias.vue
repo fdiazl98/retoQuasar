@@ -1,111 +1,208 @@
 <template>
   <q-page padding>
-    <h1>Categorias</h1>
-    <pre>{{ seleccion }}-{{ producto }}-{{ terminos }}</pre>
-    <q-form
-      class="row q-col-gutter-md"
-      @submit="procesarFormulario"
-      @reset="reset"
-      ref="myForm"
-    >
-      <div class="col-12 col-sm-6">
-        <q-select
-          label="Prioridad"
-          v-model="seleccion"
-          :options="opciones"
-          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-          lazy-rules
-        ></q-select>
-      </div>
-      <div class="col-12 col-sm-6">
-        <q-input
-          label="Prioridad"
-          v-model="producto"
-          :rules="[(val) => (val && val.length > 0) || 'Please type something']"
-          lazy-rules
-        ></q-input>
-      </div>
-      <div class="col-12">
-        <q-toggle label="Aceptar los terminos y condiciones" v-model="terminos">
-        </q-toggle>
-      </div>
-      <div class="col-12">
-        <q-btn label="submit" color="primary" type="submit"></q-btn>
-        <q-btn
-          label="reset"
-          color="primary"
-          outline
-          class="q-ml-sm"
-          :ripple="false"
-          type="reset"
-        ></q-btn>
-      </div>
-    </q-form>
+    <div class="q-pa-md">
+      <div class="q-gutter-md" style="max-width: 300px"></div>
+      <q-btn
+        label="Agregar"
+        type="submit"
+        color="primary"
+        margin-top="10px"
+        @click="clickAgregar"
+      />
+    </div>
 
-    <pintar-datos :productos="productos"></pintar-datos>
+    <div class="q-pa-md">
+      <q-table
+        title="Articulos"
+        :rows="listado"
+        :columns="columns"
+        :row-key="name"
+      >
+        <template v-slot:body="props">
+          <q-tr @click="clickRow(props.row)">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <div v-show="col.name != 'foto'">
+                {{ col.value }}
+              </div>
+              <div v-show="col.name == 'foto'">
+                <img :src="col.value" alt="" />
+              </div>
+            </q-td>
+            <q-td auto-width></q-td>
+          </q-tr>
+        </template>
+      </q-table>
+    </div>
+
+    <q-dialog v-model="mostrarModal">
+      <q-card>
+        <div class="q-pa-md" style="max-width: 600px">
+          <h5 style="width: 500px">{{ accion }}</h5>
+          <q-form class="q-gutter-md" @submit.prevent="CreateRow">
+            <q-input filled v-model="fila.descripcion" label="Descripcion" />
+            <q-input
+              filled
+              v-model="fila.fechacreacion"
+              hint="Fecha de creacion"
+              type="date"
+            />
+            <q-input
+              filled
+              v-model="fila.fechamodificacion"
+              type="date"
+              hint="Fecha de modificacion"
+            />
+            <q-input filled v-model="fila.foto" label="Foto" />
+            <q-input filled v-model="fila.id" label="Id" />
+
+            <div>
+              <q-btn :label="accion" color="primary" type="submit" />
+              <q-btn
+                label="Salir"
+                type="reset"
+                color="primary"
+                flat
+                class="q-ml-sm"
+                @click="mostrarModal = false"
+              />
+            </div>
+          </q-form>
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
-import { ref } from "vue";
+const columns = [
+  {
+    name: "id",
+    label: "Id de articulo",
+    align: "center",
+    field: "id",
+    sortable: true,
+  },
+  {
+    name: "descripcion",
+    label: "Descripcion",
+    align: "center",
+    field: "descripcion",
+    sortable: true,
+  },
+  {
+    name: "fechacreacion",
+    label: "Fecha de Creacion",
+    align: "center",
+    field: "fechacreacion",
+    sortable: true,
+  },
+  {
+    name: "fechamodificacion",
+    label: "Fecha Modificacion",
+    align: "center",
+    field: "fechamodificacion",
+    sortable: true,
+  },
+  {
+    name: "foto",
+    label: "Foto",
+    align: "center",
+    field: "foto",
+    sortable: true,
+  },
+];
+
 import { useQuasar } from "quasar";
-import PintarDatos from "src/components/PintarDatos";
+import { ref } from "@vue/reactivity";
+import { api } from "boot/axios";
+import { mapActions } from "vuex";
+
 export default {
-  components: { PintarDatos },
   setup() {
-    const myForm = ref(null);
-    const $q = useQuasar();
-    const producto = ref(null);
-    const seleccion = ref(null);
-    const opciones = ["minima", "maxima", "media"];
-    const terminos = ref(false);
-
-    const productos = ref([]);
-
-    const reset = () => {
-      producto.value = null;
-      seleccion.value = null;
-      terminos.value = false;
-    };
-
-    const procesarFormulario = () => {
-      console.log("click en submits", producto.value, seleccion.value);
-      if (terminos.value === false) {
-        $q.notify({
-          color: "red-5",
-          textColor: "white",
-          icon: "warning",
-          message: "faltaron los terminos",
-        });
-      } else {
-        $q.notify({
-          color: "green-5",
-          textColor: "white",
-          icon: "cloud_done",
-          message: "Formulario enviado",
-        });
-        myForm.value.resetValidation();
-        productos.value = [
-          ...productos.value,
-          {
-            producto: producto.value,
-            prioridad: seleccion.value,
-          },
-        ];
-        reset();
-      }
-    };
-
+    // const lista = ref(null);
+    // const $q = useQuasar();
     return {
-      producto,
-      seleccion,
-      opciones,
-      procesarFormulario,
-      terminos,
-      reset,
-      myForm,
-      productos,
+      columns,
+      date: "",
+      search: "",
     };
+  },
+  data() {
+    return {
+      // token: window.localStorage.getItem("token"),
+      listado: [],
+      fila: {
+        id: 5,
+        descripcion: "",
+        foto: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+      },
+      accion: "",
+      mostrarModal: false,
+    };
+  },
+  methods: {
+    // ...mapActions("auth", ["getData"]),
+    async submitForm() {
+      // this.listado = await this.getData(this.token);
+
+      // const toPath = this.$route.query.to || "/admin";
+      // this.$router.push(toPath);
+      await api.get("api/Categorias/Get").then((response) => {
+        //   // commit('setMe', response.data)
+        return (this.listado = response.data);
+      });
+    },
+    async CreateRow() {
+      await api
+        .post(`api/Categorias/${this.accion}`, this.fila)
+        .then((response) => {
+          console.log(response);
+          this.submitForm();
+          this.fila = {
+            id: 5,
+            descripcion: "",
+            foto: "",
+            fechacreacion: "",
+            fechamodificacion: "",
+          };
+          this.mostrarModal = false;
+        });
+    },
+    clickAgregar() {
+      this.accion = "Crear";
+      this.mostrarModal = true;
+      this.fila = {
+        id: 5,
+        descripcion: "",
+        foto: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+      };
+    },
+    clickRow(row) {
+      console.log(row);
+      this.accion = "Actualizar";
+      this.mostrarModal = true;
+      this.fila = {
+        id: row.id,
+        descripcion: row.descripcion,
+        fechacreacion: row.fechacreacion,
+        fechamodificacion: row.fechamodificacion,
+        foto: row.foto,
+      };
+    },
+  },
+  mounted() {
+    this.submitForm();
   },
 };
 </script>
+<style>
+img {
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+}
+</style>
