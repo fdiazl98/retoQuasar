@@ -1,5 +1,12 @@
 <template>
   <div class="q-pa-md">
+    <q-btn
+      label="Agregar"
+      type="submit"
+      color="primary"
+      margin-top="10px"
+      @click="(mostrarModal = true), (condition = -1), (accion = 'Crear')"
+    />
     <q-table
       title="Movimientos"
       :rows="listado"
@@ -35,11 +42,7 @@
             label="Id Articulo"
           />
           <q-toggle v-model="visibleColumns" val="cantidad" label="Cantidad" />
-          <q-toggle
-            v-model="visibleColumns"
-            val="idBodega"
-            label="Id Bodega"
-          />
+          <q-toggle v-model="visibleColumns" val="idBodega" label="Id Bodega" />
 
           <!-- <q-toggle v-model="visibleColumns" val="iron" label="Iron" /> -->
         </div>
@@ -73,22 +76,27 @@
     <q-dialog v-model="mostrarModal">
       <q-card>
         <div class="q-pa-md" style="max-width: 600px">
-          <h5 style="width: 500px">Editar</h5>
-          <q-form class="q-gutter-md">
-            <q-input filled v-model="text" label="Id" hint="Id" />
-
-            <q-input filled v-model="text" hint="Fecha y hora" type="date" />
+          <h5 style="width: 500px">{{ accion }}</h5>
+          <q-form class="q-gutter-md" @submit.prevent="cambio">
+            <q-input filled v-model="fila.id" label="Id" hint="Id" />
 
             <q-input
               filled
-              v-model="text"
+              v-model="fila.fechahora"
+              hint="Fecha y hora"
+              type="date"
+            />
+
+            <q-input
+              filled
+              v-model="fila.idTipomovimiento"
               label="Id tipo movimiento"
               hint="Id tipo movimiento"
             />
 
             <q-input
               filled
-              v-model="text"
+              v-model="fila.observaciones"
               label="Observaciones"
               hint="Observaciones"
               type="textarea"
@@ -96,32 +104,41 @@
 
             <q-input
               filled
-              v-model="text"
-              label="Id cantidad"
-              hint="Id cantidad"
+              v-model="fila.cantidad"
+              label="cantidad"
+              hint="cantidad"
+              type="number"
             />
 
             <q-input
               filled
-              v-model="text"
-              label="Cantidad"
-              hint="Cantidad"
+              v-model="fila.idArticulo"
+              label="Id Articulo"
+              hint="id Articulo"
+              type="number"
+            />
+            <q-input
+              filled
+              v-model="fila.idBodega"
+              label="Id Bodega"
+              hint="id Bodega"
               type="number"
             />
 
             <div>
               <q-btn
-                label="Salir"
+                :label="accion"
                 color="primary"
-                @click="mostrarModal = false"
+                type="submit"
+
               />
-              <q-btn
+              <!-- <q-btn
                 label="Reset"
                 type="reset"
                 color="primary"
                 flat
                 class="q-ml-sm"
-              />
+              /> -->
             </div>
           </q-form>
         </div>
@@ -189,17 +206,10 @@ const columns = [
 ];
 
 const rows = [];
+let condition;
 
 export default {
   setup() {
-    const mostrarModal = ref(false);
-
-    // const $q = useQuasar();
-    const clickRow = (evt, row, index) => {
-      // showEdit.value = false;
-      console.log(row);
-      mostrarModal.value = true;
-    };
     return {
       visibleColumns: ref([
         "fechahora",
@@ -213,31 +223,94 @@ export default {
       columns,
       rows,
       alert,
-      mostrarModal,
-      clickRow,
     };
   },
 
   data() {
     return {
       listado: [],
-      //     token:
-      //       "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUHJ1ZWJhNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNjU3MTQ0NDcxfQ.TF5jQDuVbsI_SKG3wjLoFuwzAlizGDbNnrlxWwbwMFmaAlchbNMpon6Lm7UTVuA5ZLWNUU8lRQ9eH9NTLcN1vg",
+
+      fila: {
+        id: "",
+        idTipomovimiento: "",
+        fechahora: "",
+        cantidad: "",
+        idArticulo: "",
+        observaciones: "",
+        cantidad: "",
+        idBodega: "",
+      },
+      mostrarModal: false,
+      accion: "",
     };
   },
 
   methods: {
-    // ...mapActions("auth", ["getData"]),
+    clickRow(evt, row, index) {
+      // showEdit.value = false;
+      // console.log(row);
+      this.accion = "Actualizar";
+
+      this.mostrarModal = true;
+      condition = index;
+      this.fila = {
+        id:row.id,
+        idTipomovimiento: row.idTipomovimiento,
+        fechahora: row.fechahora,
+        cantidad: row.cantidad,
+        idArticulo: row.idArticulo,
+        observaciones: row.observaciones,
+        idBodega: row.idBodega,
+      };
+
+      console.log("esto es fila :" + this.fila);
+    },
+
     async submitForm() {
-      await api.get("/api/Movimiento/Get").then((response) => {
-        console.log(
-          "0========================prueba============================"
-        );
-        console.log(response.data);
+      await api.get("api/Movimiento/get").then((response) => {
+        // console.log(
+        //   "0========================prueba============================"
+        // );
+        // console.log(response.data);
         return (this.listado = response.data);
       });
 
       // rows=lista
+    },
+
+    async cambio() {
+      console.log(
+        "===================== " + this.condition + " ====================="
+      );
+      if (this.condition == -1) {
+        // return editar='crear'
+        this.accion = "Crear";
+
+        this.mostrarModal = true;
+        await api.post("api/Movimiento/Crear", this.fila).then((response) => {
+          console.log(response);
+          this.submitForm();
+        });
+      } else {
+        //  return editar='editar'
+
+        await api.post("api/Movimiento/Actualizar", this.fila).then((response) => {
+            console.log(response);
+
+            this.fila = {
+              idTipomovimiento: "",
+              fechahora: "",
+              cantidad: "",
+              id: "",
+              idArticulo: "",
+              observaciones: "",
+              cantidad: "",
+              idBodega: "",
+            };
+            this.submitForm();
+            this.mostrarModal=false
+          });
+      }
     },
   },
   mounted() {
