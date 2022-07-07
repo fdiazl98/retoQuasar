@@ -13,14 +13,24 @@
 
     <div class="q-pa-md">
       <q-table
-        class="gutter-md"
-        title="Categorias"
-        dense
+        title="Articulos"
         :rows="listado"
         :columns="columns"
-        row-key="name"
-        @row-click="clickRow"
+        :row-key="name"
       >
+        <template v-slot:body="props">
+          <q-tr @click="clickRow(props.row)">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <div v-show="col.name != 'foto'">
+                {{ col.value }}
+              </div>
+              <div v-show="col.name == 'foto'">
+                <img :src="col.value" alt="" />
+              </div>
+            </q-td>
+            <q-td auto-width></q-td>
+          </q-tr>
+        </template>
       </q-table>
     </div>
 
@@ -66,6 +76,13 @@
 <script>
 const columns = [
   {
+    name: "id",
+    label: "Id de articulo",
+    align: "center",
+    field: "id",
+    sortable: true,
+  },
+  {
     name: "descripcion",
     label: "Descripcion",
     align: "center",
@@ -93,13 +110,6 @@ const columns = [
     field: "foto",
     sortable: true,
   },
-  {
-    name: "id",
-    label: "Id de articulo",
-    align: "center",
-    field: "id",
-    sortable: true,
-  },
 ];
 
 import { useQuasar } from "quasar";
@@ -122,11 +132,11 @@ export default {
       // token: window.localStorage.getItem("token"),
       listado: [],
       fila: {
+        id: 5,
         descripcion: "",
+        foto: "",
         fechacreacion: "",
         fechamodificacion: "",
-        foto: "",
-        id: "",
       },
       accion: "",
       mostrarModal: false,
@@ -151,34 +161,36 @@ export default {
           console.log(response);
           this.submitForm();
           this.fila = {
+            id: 5,
             descripcion: "",
+            foto: "",
             fechacreacion: "",
             fechamodificacion: "",
-            foto: "",
-            id: "",
           };
+          this.mostrarModal = false;
         });
     },
     clickAgregar() {
       this.accion = "Crear";
       this.mostrarModal = true;
       this.fila = {
+        id: 5,
         descripcion: "",
+        foto: "",
         fechacreacion: "",
         fechamodificacion: "",
-        foto: "",
-        id: "",
       };
     },
-    clickRow(evt, row, index) {
+    clickRow(row) {
+      console.log(row);
       this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
+        id: row.id,
         descripcion: row.descripcion,
         fechacreacion: row.fechacreacion,
         fechamodificacion: row.fechamodificacion,
         foto: row.foto,
-        id: row.id,
       };
     },
   },
@@ -187,3 +199,10 @@ export default {
   },
 };
 </script>
+<style>
+img {
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+}
+</style>

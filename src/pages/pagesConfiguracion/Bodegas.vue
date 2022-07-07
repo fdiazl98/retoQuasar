@@ -23,7 +23,7 @@
       >
       </q-table> -->
       <q-table
-        title="Treats"
+        title="Bodegas"
         :rows="listado"
         :columns="columns"
         :row-key="name"

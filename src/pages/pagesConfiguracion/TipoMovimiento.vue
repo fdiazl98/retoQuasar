@@ -14,7 +14,7 @@
     <div class="q-pa-md">
       <q-table
         class="gutter-md"
-        title="Bodegas"
+        title="Tipo Movimientos"
         dense
         :rows="listado"
         :columns="columns"
@@ -168,6 +168,7 @@ export default {
             factor: "",
             id: "",
           };
+          this.mostrarModal = false;
         });
     },
     clickAgregar() {

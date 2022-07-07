@@ -1,15 +1,30 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <q-table title="Treats" :rows="rows" :columns="columns" :row-key="name">
+      <div class="q-gutter-md" style="max-width: 300px"></div>
+      <q-btn
+        label="Agregar"
+        type="submit"
+        color="primary"
+        margin-top="10px"
+        @click="clickAgregar"
+      />
+    </div>
+
+    <div class="q-pa-md">
+      <q-table
+        title="Articulos"
+        :rows="listado"
+        :columns="columns"
+        :row-key="name"
+      >
         <template v-slot:body="props">
-          <q-tr @click="UpdateRow(props.row)">
+          <q-tr @click="clickRow(props.row)">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
               <div v-show="col.name != 'foto'">
                 {{ col.value }}
               </div>
               <div v-show="col.name == 'foto'">
-                l
                 <img :src="col.value" alt="" />
               </div>
             </q-td>
@@ -17,107 +32,222 @@
           </q-tr>
         </template>
       </q-table>
-      <div class="q-pa-md q-gutter-sm">
-        <q-btn label="Checkbox Options" color="primary" @click="checkbox" />
-      </div>
     </div>
+
+    <q-dialog v-model="mostrarModal">
+      <q-card>
+        <div class="q-pa-md" style="max-width: 600px">
+          <h5 style="width: 500px">{{ accion }}</h5>
+          <q-form class="q-gutter-md" @submit.prevent="CreateRow">
+            <q-input filled v-model="fila.codigo" label="Codigo" />
+            <q-input filled v-model="fila.descripcion" label="Descripcion" />
+            <q-input
+              filled
+              v-model="fila.fechacreacion"
+              hint="Fecha de creacion"
+              type="date"
+            />
+            <q-input
+              filled
+              v-model="fila.fechamodificacion"
+              type="date"
+              hint="Fecha de modificacion"
+            />
+            <q-input filled v-model="fila.foto" label="Foto" />
+            <q-input filled v-model="fila.id" label="Id" />
+            <q-input filled v-model="fila.idCategoria" label="Id Categoria" />
+            <q-input filled v-model="fila.preciocompra" label="Precio Compra" />
+            <q-input filled v-model="fila.precioventa" label="Precio Venta" />
+
+            <div>
+              <q-btn :label="accion" color="primary" type="submit" />
+              <q-btn
+                label="Salir"
+                type="reset"
+                color="primary"
+                flat
+                class="q-ml-sm"
+                @click="mostrarModal = false"
+              />
+            </div>
+          </q-form>
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
-  <!-- ------------------------------------ -->
-  <!-- v-on:click="UpdateRow(rows)" -->
-  <!-- ------------------------------------ -->
 </template>
 
 <script>
 const columns = [
-  { name: "name", label: "Nombre", field: "name", sortable: true },
-  { name: "descripcion", label: "Descripcion", field: "descripcion" },
-  { name: "fechacreacion", label: "Fecha Creacion", field: "fechacreacion" },
+  {
+    name: "id",
+    label: "Id de articulo",
+    align: "center",
+    field: "id",
+    sortable: true,
+  },
+  {
+    name: "codigo",
+    required: true,
+    label: "codigo articulo",
+    align: "center",
+    field: "codigo",
+    sortable: true,
+  },
+  {
+    name: "descripcion",
+    label: "Descripcion",
+    align: "center",
+    field: "descripcion",
+    sortable: true,
+  },
+  {
+    name: "fechacreacion",
+    label: "Fecha de Creacion",
+    align: "center",
+    field: "fechacreacion",
+    sortable: true,
+  },
   {
     name: "fechamodificacion",
     label: "Fecha Modificacion",
+    align: "center",
     field: "fechamodificacion",
-  },
-  { name: "foto", label: "Foto", field: "foto" },
-];
-
-const rows = [
-  {
-    name: "Frozen Yogurt",
-    descripcion: 159,
-    fechacreacion: 24,
-    fechamodificacion: 4.0,
-    foto: "https://as01.epimg.net/meristation/imagenes/2022/05/08/noticias/1651998508_361943_1652017073_noticia_normal.jpg",
+    sortable: true,
   },
   {
-    name: "Frssssrt",
-    descripcion: 5555,
-    fechacreacion: 3333,
-    fechamodificacion: 2222.0,
-    foto: "https://img1.ak.crunchyroll.com/i/spire2/a6e36e575f9d9d38d1cf40d6769980a31651739960_main.jpg",
+    name: "foto",
+    label: "Foto",
+    align: "center",
+    field: "foto",
+    sortable: true,
+  },
+  {
+    name: "idCategoria",
+    label: "Id Categoria",
+    align: "center",
+    field: "idCategoria",
+    sortable: true,
+  },
+  {
+    name: "preciocompra",
+    label: "Precio Compra",
+    align: "center",
+    field: "preciocompra",
+    sortable: true,
+  },
+  {
+    name: "precioventa",
+    label: "Precio Venta",
+    align: "center",
+    field: "precioventa",
+    sortable: true,
   },
 ];
 
-// const foto =
-//   "https://as01.epimg.net/meristation/imagenes/2022/05/08/noticias/1651998508_361943_1652017073_noticia_normal.jpg";
-
-import { ref } from "vue";
 import { useQuasar } from "quasar";
+import { ref } from "@vue/reactivity";
+import { api } from "boot/axios";
+import { mapActions } from "vuex";
+
 export default {
   setup() {
-    const $q = useQuasar();
-    const verFormulario = ref(false);
-    const row = [];
-    const jason = {};
-    function checkbox() {
-      $q.dialog({
-        title: "Options",
-        message: "Choose your options:",
-        options: {
-          type: "checkbox",
-          model: [],
-          // inline: true
-          items: [
-            { label: "Option 1", value: "opt1", color: "secondary" },
-            { label: "Option 2", value: "opt2" },
-            { label: "Option 3", value: "opt3" },
-          ],
-        },
-        cancel: true,
-        persistent: true,
-      })
-        .onOk((data) => {
-          // console.log('>>>> OK, received', data)
-        })
-        .onCancel(() => {
-          // console.log('>>>> Cancel')
-        })
-        .onDismiss(() => {
-          // console.log('I am triggered on both OK and Cancel')
-        });
-    }
-
-    const UpdateRow = (rows) => {
-      console.log(rows);
-      verFormulario.value = true;
-    };
-
+    // const lista = ref(null);
+    // const $q = useQuasar();
     return {
       columns,
-      rows,
-      UpdateRow,
-      row,
-      verFormulario,
-      checkbox,
+      date: "",
+      search: "",
+    };
+  },
+  data() {
+    return {
+      // token: window.localStorage.getItem("token"),
+      listado: [],
+      fila: {
+        id: 5,
+        codigo: "",
+        descripcion: "",
+        foto: "",
+        idCategoria: null,
+        preciocompra: null,
+        precioventa: null,
+        fechacreacion: "",
+        fechamodificacion: "",
+      },
+      accion: "",
+      mostrarModal: false,
     };
   },
   methods: {
-    onRowClick2: function (evt, row, index) {
-      console.log(row);
+    // ...mapActions("auth", ["getData"]),
+    async submitForm() {
+      // this.listado = await this.getData(this.token);
+
+      // const toPath = this.$route.query.to || "/admin";
+      // this.$router.push(toPath);
+      await api.get("api/Articulos/Get").then((response) => {
+        //   // commit('setMe', response.data)
+        return (this.listado = response.data);
+      });
     },
+    async CreateRow() {
+      await api
+        .post(`api/Articulos/${this.accion}`, this.fila)
+        .then((response) => {
+          console.log(response);
+          this.submitForm();
+          this.fila = {
+            id: 5,
+            codigo: "",
+            descripcion: "",
+            foto: "",
+            idCategoria: null,
+            preciocompra: null,
+            precioventa: null,
+            fechacreacion: "",
+            fechamodificacion: "",
+          };
+          this.mostrarModal = false;
+        });
+    },
+    clickAgregar() {
+      this.accion = "Crear";
+      this.mostrarModal = true;
+      this.fila = {
+        id: 5,
+        codigo: "",
+        descripcion: "",
+        foto: "",
+        idCategoria: null,
+        preciocompra: null,
+        precioventa: null,
+        fechacreacion: "",
+        fechamodificacion: "",
+      };
+    },
+    clickRow(row) {
+      console.log(row);
+      this.accion = "Actualizar";
+      this.mostrarModal = true;
+      this.fila = {
+        id: row.id,
+        codigo: row.codigo,
+        descripcion: row.descripcion,
+        fechacreacion: row.fechacreacion,
+        fechamodificacion: row.fechamodificacion,
+        foto: row.foto,
+        idCategoria: row.idCategoria,
+        preciocompra: row.preciocompra,
+        precioventa: row.precioventa,
+      };
+    },
+  },
+  mounted() {
+    this.submitForm();
   },
 };
 </script>
-
 <style>
 img {
   border-radius: 4px;
