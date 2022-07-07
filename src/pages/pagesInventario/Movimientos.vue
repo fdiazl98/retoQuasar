@@ -5,7 +5,12 @@
       type="submit"
       color="primary"
       margin-top="10px"
-      @click="(mostrarModal = true), (condition = -1), (accion = 'Crear')"
+      @click="
+        (mostrarModal = true),
+          (condition = -1),
+          (accion = 'Crear'),
+          (ver = false)
+      "
     />
     <q-table
       title="Movimientos"
@@ -43,6 +48,7 @@
           />
           <q-toggle v-model="visibleColumns" val="cantidad" label="Cantidad" />
           <q-toggle v-model="visibleColumns" val="idBodega" label="Id Bodega" />
+          <!-- <q-toggle v-model="visibleColumns" val="estado" label="Estado" /> -->
 
           <!-- <q-toggle v-model="visibleColumns" val="iron" label="Iron" /> -->
         </div>
@@ -78,7 +84,7 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="cambio">
-            <q-input filled v-model="fila.id" label="Id" hint="Id" />
+            <q-input filled v-model="fila.id" label="Id" :disable="ver" />
 
             <q-input
               filled
@@ -91,14 +97,13 @@
               filled
               v-model="fila.idTipomovimiento"
               label="Id tipo movimiento"
-              hint="Id tipo movimiento"
+              type="number"
             />
 
             <q-input
               filled
               v-model="fila.observaciones"
               label="Observaciones"
-              hint="Observaciones"
               type="textarea"
             />
 
@@ -106,7 +111,6 @@
               filled
               v-model="fila.cantidad"
               label="cantidad"
-              hint="cantidad"
               type="number"
             />
 
@@ -114,24 +118,25 @@
               filled
               v-model="fila.idArticulo"
               label="Id Articulo"
-              hint="id Articulo"
               type="number"
             />
             <q-input
               filled
               v-model="fila.idBodega"
               label="Id Bodega"
-              hint="id Bodega"
               type="number"
+            />
+            <q-select
+              filled
+              v-model="fila.estado"
+              :options="options"
+              label="Estado"
+              map-options
+              emit-value
             />
 
             <div>
-              <q-btn
-                :label="accion"
-                color="primary"
-                type="submit"
-
-              />
+              <q-btn :label="accion" color="primary" type="submit" />
               <!-- <q-btn
                 label="Reset"
                 type="reset"
@@ -203,6 +208,13 @@ const columns = [
     sort: (a, b) => parseInt(a, 10) - parseInt(b, 10),
     align: "center",
   },
+  {
+    name: "estado",
+    label: "Estado",
+    align: "center",
+    field: "estado",
+    sortable: true,
+  },
 ];
 
 const rows = [];
@@ -219,10 +231,21 @@ export default {
         "observaciones",
         "cantidad",
         "idBodega",
+        "estado",
       ]),
       columns,
       rows,
       alert,
+      options: [
+        {
+          label: "Activo",
+          value: 1,
+        },
+        {
+          label: "Inactivo",
+          value: 2,
+        },
+      ],
     };
   },
 
@@ -239,9 +262,11 @@ export default {
         observaciones: "",
         cantidad: "",
         idBodega: "",
+        estado: "",
       },
       mostrarModal: false,
       accion: "",
+      ver: false,
     };
   },
 
@@ -250,17 +275,18 @@ export default {
       // showEdit.value = false;
       // console.log(row);
       this.accion = "Actualizar";
-
+      this.ver = true;
       this.mostrarModal = true;
       condition = index;
       this.fila = {
-        id:row.id,
+        id: row.id,
         idTipomovimiento: row.idTipomovimiento,
         fechahora: row.fechahora,
         cantidad: row.cantidad,
         idArticulo: row.idArticulo,
         observaciones: row.observaciones,
         idBodega: row.idBodega,
+        estado: row.estado,
       };
 
       console.log("esto es fila :" + this.fila);
@@ -294,7 +320,9 @@ export default {
       } else {
         //  return editar='editar'
 
-        await api.post("api/Movimiento/Actualizar", this.fila).then((response) => {
+        await api
+          .post("api/Movimiento/Actualizar", this.fila)
+          .then((response) => {
             console.log(response);
 
             this.fila = {
@@ -306,11 +334,13 @@ export default {
               observaciones: "",
               cantidad: "",
               idBodega: "",
+              estado: "",
             };
             this.submitForm();
-            this.mostrarModal=false
           });
       }
+      this.mostrarModal = false;
+      this.condition = "";
     },
   },
   mounted() {

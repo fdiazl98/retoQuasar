@@ -1,34 +1,103 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px">
-        <q-input class="outlined" v-model="text" label="Outlined" />
-
-        <q-input class="input input-sm" v-model="search" filled type="search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-
-        <q-input v-model="date" filled type="date" />
-      </div>
-      <q-btn label="Submit" type="submit" color="primary" margin-top="10px" />
-    </div>
-
-    <div class="q-pa-md">
+      <q-btn
+        label="Agregar"
+        type="submit"
+        color="primary"
+        margin-top="10px"
+        @click="
+          (mostrarModal = true),
+            (condition = -1),
+            (accion = 'Crear'),
+            (ver = false)
+        "
+      />
       <q-table
         class="gutter-md"
-        title="Roles"
+        title="Usuarios"
         dense
-        :rows="rows"
+        :rows="listado"
         :columns="columns"
         row-key="name"
+        @row-click="clickRow"
       ></q-table>
     </div>
+
+    <q-dialog v-model="mostrarModal">
+      <q-card>
+        <div class="q-pa-md" style="max-width: 600px">
+          <h5 style="width: 500px">{{ accion }}</h5>
+          <q-form class="q-gutter-md" @submit.prevent="cambio">
+            <q-input
+              filled
+              v-model="fila.username"
+              label="Username"
+              :disable="ver"
+            />
+            <q-input
+              filled
+              v-model="fila.password"
+              label="Password"
+              type="password"
+            />
+            <q-input
+              filled
+              v-model="fila.nombre"
+              label="Nombre"
+              type="string"
+            />
+            <q-input
+              filled
+              v-model="fila.ultimologin"
+              hint="Ultimo Login"
+              type="date"
+            />
+            <q-select
+              filled
+              v-model="fila.estado"
+              :options="options"
+              label="Estado"
+              map-options
+              emit-value
+            />
+            <q-input
+              filled
+              v-model="fila.fechacreacion"
+              hint="Fecha Creacion"
+              type="date"
+            />
+            <q-input
+              filled
+              v-model="fila.fechamodificacion"
+              hint="Fecha Modificacion"
+              type="date"
+            />
+     
+
+            <div>
+              <q-btn :label="accion" color="primary" type="submit" />
+              <!-- <q-btn
+                  label="Reset"
+                  type="reset"
+                  color="primary"
+                  flat
+                  class="q-ml-sm"
+
+                /> -->
+            </div>
+          </q-form>
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
+import { useQuasar } from "quasar";
+import { api } from "boot/axios";
+import { ref } from "vue";
+let condition;
 const columns = [
   {
     name: "username",
@@ -46,10 +115,17 @@ const columns = [
     sortable: true,
   },
   {
-    name: "ultimoLogin",
+    name: "nombre",
+    label: "Nombre",
+    align: "center",
+    field: "nombre",
+    sortable: true,
+  },
+  {
+    name: "ultimologin",
     label: "Ultimo Login",
     align: "center",
-    field: "ultimoLogin",
+    field: "ultimologin",
     sortable: true,
   },
   {
@@ -60,17 +136,17 @@ const columns = [
     sortable: true,
   },
   {
-    name: "fechaCreacion",
+    name: "fechacreacion",
     label: "Fecha Creacion",
     align: "center",
-    field: "fechaCreacion",
+    field: "fechacreacion",
     sortable: true,
   },
   {
-    name: "fechaModificacion",
+    name: "fechamodificacion",
     label: "Fecha Modificacion",
     align: "center",
-    field: "fechaModificacion",
+    field: "fechamodificacion",
     sortable: true,
   },
 ];
@@ -133,113 +209,112 @@ export default {
       rows,
       date: "",
       search: "",
+      model: ref(null),
+      options: [
+        {
+          label: "Activo",
+          value: 1,
+        },
+        {
+          label: "Inactivo",
+          value: 2,
+        },
+      ],
     };
+  },
+
+  data() {
+    return {
+      listado: [],
+
+      fila: {
+        username: "",
+        password: "",
+        nombre: "",
+        ultimologin: "",
+        estado: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+      },
+      mostrarModal: false,
+      accion: "",
+      condition,
+      ver: false,
+    };
+  },
+
+  methods: {
+    clickRow(evt, row, index) {
+      this.accion = "Actualizar";
+      this.ver = true;
+      this.mostrarModal = true;
+      condition = index;
+      this.fila = {
+        username: row.username,
+        password: row.password,
+        nombre: row.nombre,
+        ultimologin: row.ultimologin,
+        estado: row.estado,
+        fechacreacion: row.fechacreacion,
+        fechamodificacion: row.fechamodificacion,
+      };
+    },
+
+    async submitForm() {
+      await api.get("api/Usuarios/Get").then((response) => {
+        return (this.listado = response.data);
+      });
+    },
+
+    async cambio() {
+      console.log(
+        "===================== " + condition + " ====================="
+      );
+      if (this.condition == -1) {
+        // return editar='crear'
+        this.accion = "Crear";
+
+        this.mostrarModal = true;
+        await api.post("api/Usuarios/Crear", this.fila).then((response) => {
+          console.log(response);
+          this.submitForm();
+        });
+        this.fila = {
+          username: "",
+          password: "",
+          nombre: "",
+          ultimologin: "",
+          estado: "",
+          fechacreacion: "",
+          fechamodificacion: "",
+        };
+      } else {
+        //  return editar='editar'
+
+        await api
+          .post("api/Usuarios/Actualizar", this.fila)
+          .then((response) => {
+            console.log(response);
+
+            this.fila = {
+              username: "",
+              password: "",
+              nombre: "",
+              ultimologin: "",
+              estado: "",
+              fechacreacion: "",
+              fechamodificacion: "",
+            };
+            this.submitForm();
+          });
+      }
+      this.mostrarModal = false;
+      this.condition = "";
+    },
+  },
+
+  mounted() {
+    this.submitForm();
   },
 };
 </script>
-
-<!-- <script>
-const columns = [
-  {
-    name: "username",
-    label: "Username",
-    align: "center",
-    field: "username",
-    sortable: "true",
-  },
-  {
-    name: "password",
-    label: "Password",
-    align: "center",
-    field: "password",
-    sortable: "true",
-  },
-  {
-    name: "ultimoLogin",
-    label: "Ultimo Login",
-    align: "center",
-    field: "ultimoLogin",
-    sortable: "true",
-  },
-  {
-    name: "estado",
-    label: "Estado",
-    align: "center",
-    field: "estado",
-    sortable: "true",
-  },
-  {
-    name: "fechaCreacion",
-    label: "Fecha Creacion",
-    align: "center",
-    field: "fechaCreacion",
-    sortable: "true",
-  },
-  {
-    name: "fechaModificacion",
-    label: "Fecha Modificacion",
-    align: "center",
-    field: "fechaModificacion",
-    sortable: "true",
-  },
-];
-const rows = [
-  {
-    username: "luis 43t",
-    password: "prueba 2",
-    ultimoLogin: "01-04-2022",
-    estado: "Activo",
-    fechaCreacion: "09-01-2021",
-    fechaModificacion: "12-12-2021",
-  },
-  {
-    username: "luis 3r",
-    password: "prueba 2",
-    ultimoLogin: "06-04-2022",
-    estado: "Inactivo",
-    fechaCreacion: "09-01-2021",
-    fechaModificacion: "12-12-2021",
-  },
-  {
-    username: "luis t4",
-    password: "prueba 2",
-    ultimoLogin: "07-04-2022",
-    estado: "Activo",
-    fechaCreacion: "09-01-2021",
-    fechaModificacion: "12-12-2021",
-  },
-  {
-    username: "luis 34",
-    password: "prueba 2",
-    ultimoLogin: "08-04-2022",
-    estado: "Activo",
-    fechaCreacion: "09-01-2021",
-    fechaModificacion: "12-12-2021",
-  },
-  {
-    username: "luis 43",
-    password: "prueba 2",
-    ultimoLogin: "09-04-2022",
-    estado: "Inactivo",
-    fechaCreacion: "09-01-2021",
-    fechaModificacion: "12-12-2021",
-  },
-  {
-    username: "luis 4",
-    password: "prueba 2",
-    ultimoLogin: "10-04-2022",
-    estado: "Inactivo",
-    fechaCreacion: "09-01-2021",
-    fechaModificacion: "12-12-2021",
-  },
-];
-
-export default {
-  setup() {
-    return {
-      columns,
-      rows,
-    };
-  },
-};
-</script> -->
