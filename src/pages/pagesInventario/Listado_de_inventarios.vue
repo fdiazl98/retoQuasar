@@ -1,17 +1,6 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px">
-        <!-- <q-input class="outlined" v-model="text" label="Outlined" />
-
-        <q-input class="input input-sm" v-model="search" filled type="search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input> -->
-
-        <q-input v-model="date" filled type="date" />
-      </div>
       <q-btn
         label="Agregar"
         type="submit"
@@ -19,9 +8,6 @@
         margin-top="10px"
         @click="(mostrarModal = true), (condition = -1), (accion = 'Crear')"
       />
-    </div>
-
-    <div class="q-pa-md">
       <q-table
         class="gutter-md"
         title="Listado inventarios"
@@ -29,7 +15,6 @@
         :rows="listado"
         :columns="columns"
         row-key="name"
-        @row-click="clickRow"
       >
       </q-table>
     </div>
@@ -43,7 +28,6 @@
               filled
               v-model="fila.idArticulo"
               label="Id articulo"
-              hint="Id articulo"
               type="number"
             />
 
@@ -51,11 +35,10 @@
               filled
               v-model="fila.idBodega"
               label="Id bodega"
-              hint="Id bodega"
               type="number"
             />
 
-            <q-input filled v-model="fila.saldo" label="Saldo" hint="Saldo" />
+            <q-input filled v-model="fila.saldo" label="Saldo" type="number" />
 
             <q-input
               filled
@@ -66,14 +49,14 @@
 
             <div>
               <q-btn :label="accion" color="primary" type="submit" />
-              <q-btn
+              <!-- <q-btn
                 label="Reset"
                 type="reset"
                 color="primary"
                 flat
                 class="q-ml-sm"
                 @click="mostrarModal = false"
-              />
+              /> -->
             </div>
           </q-form>
         </div>
@@ -168,7 +151,7 @@ export default {
         saldo: row.saldo,
         fechaultimomovimiento: row.fechaultimomovimiento,
       };
-       console.log("esto es fila :" + this.fila.idArticulo);
+      console.log("esto es fila :" + this.fila.idArticulo);
     },
 
     async submitForm() {
@@ -210,15 +193,18 @@ export default {
           .then((response) => {
             // console.log(response);
 
-            (this.fila = {
+            this.fila = {
               idArticulo: "",
               idBodega: "",
               saldo: "",
               fechaultimomovimiento: "",
-            }),
-              this.submitForm();
+            };
+            this.submitForm();
+          
           });
       }
+      this.mostrarModal = false;
+      this.condition = "";
     },
   },
   mounted() {
