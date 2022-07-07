@@ -1,17 +1,7 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px">
-        <!-- <q-input class="outlined" v-model="text" label="Outlined" />
-
-        <q-input class="input input-sm" v-model="search" filled type="search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input> -->
-
-        <!-- <q-input v-model="date" filled type="date" /> -->
-      </div>
+      <div class="q-gutter-md" style="max-width: 300px"></div>
       <q-btn
         label="Agregar"
         type="submit"
@@ -22,15 +12,35 @@
     </div>
 
     <div class="q-pa-md">
-      <q-table
+      <!-- <q-table
         class="gutter-md"
-        title="Listado inventarios"
+        title="Bodegas"
         dense
         :rows="listado"
         :columns="columns"
         row-key="name"
         @row-click="clickRow"
       >
+      </q-table> -->
+      <q-table
+        title="Treats"
+        :rows="listado"
+        :columns="columns"
+        :row-key="name"
+      >
+        <template v-slot:body="props">
+          <q-tr @click="clickRow(props.row)">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <div v-show="col.name != 'foto'">
+                {{ col.value }}
+              </div>
+              <div v-show="col.name == 'foto'">
+                <img :src="col.value" alt="" />
+              </div>
+            </q-td>
+            <q-td auto-width></q-td>
+          </q-tr>
+        </template>
       </q-table>
     </div>
 
@@ -39,18 +49,8 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
-            <q-input
-              filled
-              v-model="fila.codigo"
-              label="Codigo"
-              hint="Id bodega"
-            />
-            <q-input
-              filled
-              v-model="fila.descripcion"
-              label="Descripcion"
-              hint="Id bodega"
-            />
+            <q-input filled v-model="fila.codigo" label="Codigo" />
+            <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
               filled
               v-model="fila.fechacreacion"
@@ -63,8 +63,8 @@
               type="date"
               hint="Fecha de modificacion"
             />
-            <q-input filled v-model="fila.foto" label="Foto" hint="Id bodega" />
-            <q-input filled v-model="fila.id" label="Id" hint="Id bodega" />
+            <q-input filled v-model="fila.foto" label="Foto" />
+            <q-input filled v-model="fila.id" label="Id" />
 
             <div>
               <q-btn :label="accion" color="primary" type="submit" />
@@ -129,14 +129,6 @@ const columns = [
     field: "id",
     sortable: true,
   },
-  {
-    name: "Edicion",
-    required: true,
-    label: "Eliminar",
-    align: "center",
-    field: "Edicion",
-    sortable: true,
-  },
 ];
 
 import { useQuasar } from "quasar";
@@ -196,13 +188,23 @@ export default {
             foto: "",
             id: "",
           };
+          this.mostrarModal = false;
         });
     },
     clickAgregar() {
       this.accion = "Crear";
       this.mostrarModal = true;
+      this.fila = {
+        codigo: "",
+        descripcion: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+        foto: "",
+        id: "",
+      };
     },
-    clickRow(evt, row, index) {
+    clickRow(row) {
+      console.log(row);
       this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
@@ -220,3 +222,10 @@ export default {
   },
 };
 </script>
+<style>
+img {
+  border-radius: 4px;
+  padding: 5px;
+  width: 150px;
+}
+</style>

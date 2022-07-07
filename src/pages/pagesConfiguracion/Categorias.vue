@@ -1,17 +1,7 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px">
-        <!-- <q-input class="outlined" v-model="text" label="Outlined" />
-
-        <q-input class="input input-sm" v-model="search" filled type="search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input> -->
-
-        <!-- <q-input v-model="date" filled type="date" /> -->
-      </div>
+      <div class="q-gutter-md" style="max-width: 300px"></div>
       <q-btn
         label="Agregar"
         type="submit"
@@ -39,12 +29,7 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
-            <q-input
-              filled
-              v-model="fila.descripcion"
-              label="Descripcion"
-              hint="Id bodega"
-            />
+            <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
               filled
               v-model="fila.fechacreacion"
@@ -57,8 +42,8 @@
               type="date"
               hint="Fecha de modificacion"
             />
-            <q-input filled v-model="fila.foto" label="Foto" hint="Id bodega" />
-            <q-input filled v-model="fila.id" label="Id" hint="Id bodega" />
+            <q-input filled v-model="fila.foto" label="Foto" />
+            <q-input filled v-model="fila.id" label="Id" />
 
             <div>
               <q-btn :label="accion" color="primary" type="submit" />
@@ -137,7 +122,6 @@ export default {
       // token: window.localStorage.getItem("token"),
       listado: [],
       fila: {
-        codigo: "",
         descripcion: "",
         fechacreacion: "",
         fechamodificacion: "",
@@ -167,7 +151,6 @@ export default {
           console.log(response);
           this.submitForm();
           this.fila = {
-            codigo: "",
             descripcion: "",
             fechacreacion: "",
             fechamodificacion: "",
@@ -179,12 +162,18 @@ export default {
     clickAgregar() {
       this.accion = "Crear";
       this.mostrarModal = true;
+      this.fila = {
+        descripcion: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+        foto: "",
+        id: "",
+      };
     },
     clickRow(evt, row, index) {
       this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
-        codigo: row.codigo,
         descripcion: row.descripcion,
         fechacreacion: row.fechacreacion,
         fechamodificacion: row.fechamodificacion,

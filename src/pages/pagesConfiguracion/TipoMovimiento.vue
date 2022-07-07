@@ -1,17 +1,7 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px">
-        <!-- <q-input class="outlined" v-model="text" label="Outlined" />
-
-        <q-input class="input input-sm" v-model="search" filled type="search">
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input> -->
-
-        <!-- <q-input v-model="date" filled type="date" /> -->
-      </div>
+      <div class="q-gutter-md" style="max-width: 300px"></div>
       <q-btn
         label="Agregar"
         type="submit"
@@ -24,7 +14,7 @@
     <div class="q-pa-md">
       <q-table
         class="gutter-md"
-        title="Listado inventarios"
+        title="Bodegas"
         dense
         :rows="listado"
         :columns="columns"
@@ -39,18 +29,8 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
-            <q-input
-              filled
-              v-model="fila.codigo"
-              label="Codigo"
-              hint="Id bodega"
-            />
-            <q-input
-              filled
-              v-model="fila.descripcion"
-              label="Descripcion"
-              hint="Id bodega"
-            />
+            <q-input filled v-model="fila.codigo" label="Codigo" />
+            <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
               filled
               v-model="fila.fechacreacion"
@@ -63,8 +43,8 @@
               type="date"
               hint="Fecha de modificacion"
             />
-            <q-input filled v-model="fila.foto" label="Foto" hint="Id bodega" />
-            <q-input filled v-model="fila.id" label="Id" hint="Id bodega" />
+            <q-input filled v-model="fila.factor" label="Factor" />
+            <q-input filled v-model="fila.id" label="Id" />
 
             <div>
               <q-btn :label="accion" color="primary" type="submit" />
@@ -116,25 +96,17 @@ const columns = [
     sortable: true,
   },
   {
-    name: "foto",
-    label: "Foto",
+    name: "factor",
+    label: "Factor",
     align: "center",
-    field: "foto",
+    field: "factor",
     sortable: true,
   },
   {
     name: "id",
-    label: "Id de articulo",
+    label: "Id",
     align: "center",
     field: "id",
-    sortable: true,
-  },
-  {
-    name: "Edicion",
-    required: true,
-    label: "Eliminar",
-    align: "center",
-    field: "Edicion",
     sortable: true,
   },
 ];
@@ -163,7 +135,7 @@ export default {
         descripcion: "",
         fechacreacion: "",
         fechamodificacion: "",
-        foto: "",
+        factor: "",
         id: "",
       },
       accion: "",
@@ -177,14 +149,14 @@ export default {
 
       // const toPath = this.$route.query.to || "/admin";
       // this.$router.push(toPath);
-      await api.get("api/Bodegas/Get").then((response) => {
+      await api.get("api/TipoMovimiento/Get").then((response) => {
         //   // commit('setMe', response.data)
         return (this.listado = response.data);
       });
     },
     async CreateRow() {
       await api
-        .post(`api/Bodegas/${this.accion}`, this.fila)
+        .post(`api/TipoMovimiento/${this.accion}`, this.fila)
         .then((response) => {
           console.log(response);
           this.submitForm();
@@ -193,7 +165,7 @@ export default {
             descripcion: "",
             fechacreacion: "",
             fechamodificacion: "",
-            foto: "",
+            factor: "",
             id: "",
           };
         });
@@ -201,6 +173,14 @@ export default {
     clickAgregar() {
       this.accion = "Crear";
       this.mostrarModal = true;
+      this.fila = {
+        codigo: "",
+        descripcion: "",
+        fechacreacion: "",
+        fechamodificacion: "",
+        factor: "",
+        id: "",
+      };
     },
     clickRow(evt, row, index) {
       this.accion = "Actualizar";
@@ -210,7 +190,7 @@ export default {
         descripcion: row.descripcion,
         fechacreacion: row.fechacreacion,
         fechamodificacion: row.fechamodificacion,
-        foto: row.foto,
+        factor: row.factor,
         id: row.id,
       };
     },
