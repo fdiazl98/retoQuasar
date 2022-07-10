@@ -87,6 +87,12 @@ const routes = [
         meta: { requireLogin: true },
         component: () => import("pages/pagesDashboard/Dashboard.vue"),
       },
+      //graficos
+      {
+        path: "/graficos",
+        component: () => import("pages/Graficos.vue"),
+        meta: { requireLogin: true },
+      },
     ],
   },
   {

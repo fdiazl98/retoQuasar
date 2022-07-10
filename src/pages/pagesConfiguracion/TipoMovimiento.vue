@@ -13,14 +13,36 @@
 
     <div class="q-pa-md">
       <q-table
-        class="gutter-md"
         title="Tipo Movimientos"
-        dense
         :rows="listado"
         :columns="columns"
-        row-key="name"
-        @row-click="clickRow"
+        :row-key="name"
       >
+        <template v-slot:body="props">
+          <q-tr @click="clickRow(props.row)">
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <div
+                v-show="col.name != 'foto'"
+                v-if="col.name == 'estado' && col.value == '1'"
+              >
+                Activo
+              </div>
+              <div
+                v-show="col.name != 'foto'"
+                v-if="col.name == 'estado' && col.value == '2'"
+              >
+                Inactivo
+              </div>
+              <div v-show="col.name != 'foto'" v-if="col.name != 'estado'">
+                {{ col.value }}
+              </div>
+              <div v-show="col.name == 'foto'">
+                <img :src="col.value" alt="" />
+              </div>
+            </q-td>
+            <q-td auto-width></q-td>
+          </q-tr>
+        </template>
       </q-table>
     </div>
 
@@ -45,6 +67,14 @@
             />
             <q-input filled v-model="fila.factor" label="Factor" />
             <q-input filled v-model="fila.id" label="Id" />
+            <q-select
+              filled
+              v-model="fila.estado"
+              :options="options"
+              label="Estado"
+              map-options
+              emit-value
+            />
 
             <div>
               <q-btn :label="accion" color="primary" type="submit" />
@@ -109,6 +139,13 @@ const columns = [
     field: "id",
     sortable: true,
   },
+  {
+    name: "estado",
+    label: "Estado",
+    align: "center",
+    field: "estado",
+    sortable: true,
+  },
 ];
 
 import { useQuasar } from "quasar";
@@ -124,6 +161,16 @@ export default {
       columns,
       date: "",
       search: "",
+      options: [
+        {
+          label: "Activo",
+          value: 1,
+        },
+        {
+          label: "Inactivo",
+          value: 2,
+        },
+      ],
     };
   },
   data() {
@@ -137,6 +184,7 @@ export default {
         fechamodificacion: "",
         factor: "",
         id: "",
+        estado: "",
       },
       accion: "",
       mostrarModal: false,
@@ -167,6 +215,7 @@ export default {
             fechamodificacion: "",
             factor: "",
             id: "",
+            estado: "",
           };
           this.mostrarModal = false;
         });
@@ -181,9 +230,10 @@ export default {
         fechamodificacion: "",
         factor: "",
         id: "",
+        estado: "",
       };
     },
-    clickRow(evt, row, index) {
+    clickRow(row) {
       this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
@@ -193,6 +243,7 @@ export default {
         fechamodificacion: row.fechamodificacion,
         factor: row.factor,
         id: row.id,
+        estado: row.estado,
       };
     },
   },

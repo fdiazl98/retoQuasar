@@ -1,8 +1,10 @@
 export default function () {
   return {
     me: {},
-    token: '',
+    token: "",
     isAuthenticated: false,
-    username:null
-  }
+    username: null,
+    ejey: [],
+    ejex: [],
+  };
 }

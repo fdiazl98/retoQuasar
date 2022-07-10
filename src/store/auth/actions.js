@@ -33,6 +33,13 @@ export const getMe = async ({ commit }, token) => {
   // console.log(token);
   return "data";
 };
+
+export const setejex = ({ commit }, ejex) => {
+  commit("setejex", ejex);
+};
+export const setejey = ({ commit }, ejey) => {
+  commit("setejey", ejey);
+};
 // // export const getData = async (token) => {
 // //   let resposeGlobal;
 // //   await api.get("api/Bodegas/Get", token).then((response) => {
@@ -47,13 +54,13 @@ export const getMe = async ({ commit }, token) => {
 // // };
 
 export const init = async ({ commit, dispatch }) => {
-  const token = window.localStorage.getItem('token')
+  const token = window.localStorage.getItem("token");
   if (token) {
-    await commit('setToken', JSON.parse(token))
-    api.defaults.headers.common.Authorization = 'Bearer ' + JSON.parse(token)
-    dispatch('getMe', JSON.parse(token))
+    await commit("setToken", JSON.parse(token));
+    api.defaults.headers.common.Authorization = "Bearer " + JSON.parse(token);
+    dispatch("getMe", JSON.parse(token));
   } else {
-    commit('removeToken')
+    commit("removeToken");
   }
   console.log("init");
 };

@@ -1,16 +1,19 @@
 <template>
   <q-page padding>
-    <div class="q-pa-md">
-      <div class="q-gutter-md" style="max-width: 300px"></div>
-      <q-btn
-        label="Agregar"
-        type="submit"
-        color="primary"
-        margin-top="10px"
-        @click="clickAgregar"
-      />
-    </div>
-
+    <h1 @click="submitForm">hola</h1>
+    <q-btn
+      label="Agregar"
+      type="submit"
+      color="primary"
+      margin-top="10px"
+      @click="clickAgregar"
+    />
+    <apexchart
+      type="bar"
+      height="350"
+      v-model:options="chartOptions"
+      :series="series"
+    ></apexchart>
     <div class="q-pa-md">
       <q-table
         title="Articulos"
@@ -176,100 +179,110 @@ import { useQuasar } from "quasar";
 import { ref } from "@vue/reactivity";
 import { api } from "boot/axios";
 import { mapActions } from "vuex";
-import { useStore } from "vuex";
-
+import { onUpdated } from "vue";
+// const listade = [44, 55, 41, 67, 22, 43, 21, 33, 45, 31, 87, 65, 35];
 export default {
   setup() {
-    // const lista = ref(null);
-    // const $q = useQuasar();
+    //variables
+    let listado = ref([]);
+    let accion = ref("");
+    let mostrarModal = ref();
+    let fila = ref({});
+    //--------------grafica---------------------------------------------
 
-    return {
-      columns,
-      date: "",
-      search: "",
-      options: [
-        {
-          label: "Activo",
-          value: 1,
-        },
-        {
-          label: "Inactivo",
-          value: 2,
-        },
-      ],
-    };
-  },
-  data() {
-    return {
-      // token: window.localStorage.getItem("token"),
-      listado: [],
-      fila: {
-        id: 5,
-        codigo: "",
-        descripcion: "",
-        foto: "",
-        idCategoria: null,
-        preciocompra: null,
-        precioventa: null,
-        fechacreacion: "",
-        fechamodificacion: "",
-        estado: "",
-      },
-      accion: "",
-      mostrarModal: false,
-    };
-  },
-  methods: {
-    ...mapActions("auth", ["setejex", "setejey"]),
-    async submitForm() {
-      // const store = useStore();
-      // this.listado = await this.getData(this.token);
-
-      // const toPath = this.$route.query.to || "/admin";
-      // this.$router.push(toPath);
+    //-----------------------------------------------------------------
+    const submitForm = async () => {
       await api.get("api/Articulos/Get").then((response) => {
-        //   // commit('setMe', response.data)
-        return (this.listado = response.data);
+        return (listado.value = response.data);
       });
-
-      var arr = [];
-      var arr2 = [];
-      for (const iterator of this.listado) {
-        arr.push(iterator.precioventa);
-        arr2.push(iterator.codigo);
+      let categorias = [];
+      for (const iterator of listado.value) {
+        categorias.push(iterator.codigo);
       }
-      this.setejex(arr2);
-      this.setejey(arr);
-      console.log(this.$store.state.auth);
 
-      // commit("setejex", arr2);
-      // store.state.auth.ejey = arr2;
-    },
-    async CreateRow() {
+      chartOptions.value.xaxis.categories = categorias;
+      console.log(chartOptions);
+
+      // console.log(chartOptions.xaxis.categories);
+      return (listado.value = response.data);
+    };
+    let chartOptions = ref({
+      // annotations: {
+      //   points: [
+      //     {
+      //       x: "Bananas",
+      //       seriesIndex: 0,
+      //       label: {
+      //         borderColor: "#775DD0",
+      //         offsetY: 0,
+      //         style: {
+      //           color: "#fff",
+      //           background: "#775DD0",
+      //         },
+      //         text: "Bananas are good",
+      //       },
+      //     },
+      //   ],
+      // },
+      chart: {
+        height: 350,
+        type: "bar",
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 10,
+          columnWidth: "50%",
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        width: 2,
+      },
+
+      grid: {
+        row: {
+          colors: ["#fff", "#f2f2f2"],
+        },
+      },
+      xaxis: {
+        labels: {
+          rotate: -45,
+        },
+        categories: [1, 2, 4, 5],
+        tickPlacement: "on",
+      },
+      yaxis: {
+        title: {
+          text: "Servings",
+        },
+      },
+      fill: {
+        type: "gradient",
+        gradient: {
+          shade: "light",
+          type: "horizontal",
+          shadeIntensity: 0.25,
+          gradientToColors: undefined,
+          inverseColors: true,
+          opacityFrom: 0.85,
+          opacityTo: 0.85,
+          stops: [50, 0, 100],
+        },
+      },
+    });
+
+    const CreateRow = async () => {
+      console.log(fila.value);
       await api
-        .post(`api/Articulos/${this.accion}`, this.fila)
+        .post(`api/Articulos/${accion.value}`, fila.value)
         .then((response) => {
-          console.log(response);
-          this.submitForm();
-          this.fila = {
-            id: 5,
-            codigo: "",
-            descripcion: "",
-            foto: "",
-            idCategoria: null,
-            preciocompra: null,
-            precioventa: null,
-            fechacreacion: "",
-            fechamodificacion: "",
-            estado: "",
-          };
-          this.mostrarModal = false;
+          console.log(response.data);
+          submitForm();
+          mostrarModal.value = false;
         });
-    },
-    clickAgregar() {
-      this.accion = "Crear";
-      this.mostrarModal = true;
-      this.fila = {
+      fila.value = {
         id: 5,
         codigo: "",
         descripcion: "",
@@ -281,11 +294,15 @@ export default {
         fechamodificacion: "",
         estado: "",
       };
-    },
-    clickRow(row) {
-      this.accion = "Actualizar";
-      this.mostrarModal = true;
-      this.fila = {
+    };
+    const clickAgregar = () => {
+      accion.value = "Crear";
+      mostrarModal.value = true;
+    };
+    const clickRow = (row) => {
+      accion.value = "Actualizar";
+      mostrarModal.value = true;
+      fila = {
         id: row.id,
         codigo: row.codigo,
         descripcion: row.descripcion,
@@ -297,10 +314,60 @@ export default {
         precioventa: row.precioventa,
         estado: row.estado,
       };
-    },
+    };
+
+    const UpdateRow = async (rows) => {
+      console.log(rows);
+      verFormulario.value = true;
+    };
+    return {
+      chartOptions,
+      clickRow,
+      clickAgregar,
+      columns,
+      date: "",
+      search: "",
+      UpdateRow,
+      submitForm,
+      CreateRow,
+      listado,
+      fila,
+      accion,
+      mostrarModal,
+
+      options: [
+        {
+          label: "Activo",
+          value: 1,
+        },
+        {
+          label: "Inactivo",
+          value: 2,
+        },
+      ],
+      //--------------------grafica--------------------
+      series: [
+        {
+          name: "Servings",
+          data: [44, 55, 41, 67, 22, 43, 21, 33, 45, 31, 87, 65, 35],
+        },
+      ],
+    };
   },
+  data() {
+    return {};
+  },
+  methods: {},
   mounted() {
-    this.submitForm();
+    // submitForm();
+  },
+  beforeCreate() {
+    console.log("beforeCreate");
+
+    console.log($store.state.auth.ejex);
+    console.log("beforeCreate");
+
+    console.log($store.state.auth.ejey);
   },
 };
 </script>

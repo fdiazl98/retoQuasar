@@ -31,7 +31,19 @@
         <template v-slot:body="props">
           <q-tr @click="clickRow(props.row)">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
-              <div v-show="col.name != 'foto'">
+              <div
+                v-show="col.name != 'foto'"
+                v-if="col.name == 'estado' && col.value == '1'"
+              >
+                Activo
+              </div>
+              <div
+                v-show="col.name != 'foto'"
+                v-if="col.name == 'estado' && col.value == '2'"
+              >
+                Inactivo
+              </div>
+              <div v-show="col.name != 'foto'" v-if="col.name != 'estado'">
                 {{ col.value }}
               </div>
               <div v-show="col.name == 'foto'">
@@ -65,6 +77,14 @@
             />
             <q-input filled v-model="fila.foto" label="Foto" />
             <q-input filled v-model="fila.id" label="Id" />
+            <q-select
+              filled
+              v-model="fila.estado"
+              :options="options"
+              label="Estado"
+              map-options
+              emit-value
+            />
 
             <div>
               <q-btn :label="accion" color="primary" type="submit" />
@@ -124,9 +144,16 @@ const columns = [
   },
   {
     name: "id",
-    label: "Id de articulo",
+    label: "Id",
     align: "center",
     field: "id",
+    sortable: true,
+  },
+  {
+    name: "estado",
+    label: "Estado",
+    align: "center",
+    field: "estado",
     sortable: true,
   },
 ];
@@ -144,6 +171,16 @@ export default {
       columns,
       date: "",
       search: "",
+      options: [
+        {
+          label: "Activo",
+          value: 1,
+        },
+        {
+          label: "Inactivo",
+          value: 2,
+        },
+      ],
     };
   },
   data() {
@@ -157,6 +194,7 @@ export default {
         fechamodificacion: "",
         foto: "",
         id: "",
+        estado: "",
       },
       accion: "",
       mostrarModal: false,
@@ -178,7 +216,6 @@ export default {
       await api
         .post(`api/Bodegas/${this.accion}`, this.fila)
         .then((response) => {
-          console.log(response);
           this.submitForm();
           this.fila = {
             codigo: "",
@@ -187,6 +224,7 @@ export default {
             fechamodificacion: "",
             foto: "",
             id: "",
+            estado: "",
           };
           this.mostrarModal = false;
         });
@@ -201,11 +239,12 @@ export default {
         fechamodificacion: "",
         foto: "",
         id: "",
+        estado: "",
       };
     },
     clickRow(row) {
-      console.log(row);
-      this.accion = "Actualizar";
+      console.log(accion);
+      accion.value = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
         codigo: row.codigo,
@@ -214,6 +253,7 @@ export default {
         fechamodificacion: row.fechamodificacion,
         foto: row.foto,
         id: row.id,
+        estado: row.estado,
       };
     },
   },

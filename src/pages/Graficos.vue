@@ -50,7 +50,7 @@ export default {
 
         xaxis: {
           categories: this.$store.state.auth.ejex,
-          position: "bottom",
+          position: "top",
           axisBorder: {
             show: false,
           },

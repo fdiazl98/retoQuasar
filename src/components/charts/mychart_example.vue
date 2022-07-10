@@ -10,17 +10,14 @@
 <script>
 // import { useCounterStore } from "stores/example-store";
 // const store = useCounterStore();
-// import { useStore } from "vuex";
-// const store = useStore();
 export default {
   name: "mychar_example",
   data() {
-    console.log(this.$store.state.auth.ejey);
     return {
       series: [
         {
           name: "Inflation",
-          data: this.$store.state.auth.ejey,
+          data: [1, 2, 3, 4, 5],
         },
       ],
       chartOptions: {
@@ -49,8 +46,8 @@ export default {
         },
 
         xaxis: {
-          categories: this.$store.state.auth.ejex,
-          position: "bottom",
+          categories: [1, 2, 3, 4, 5],
+          position: "top",
           axisBorder: {
             show: false,
           },

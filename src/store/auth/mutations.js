@@ -6,6 +6,12 @@ export const setToken = (state, token) => {
   // window.localStorage.setItem(token);
   // console.log("prueba: "+token)
 };
+export const setejex = (state, ejex) => {
+  state.ejex = ejex;
+};
+export const setejey = (state, ejey) => {
+  state.ejey = ejey;
+};
 
 export const removeToken = (state, token) => {
   state.token = "";
@@ -13,7 +19,7 @@ export const removeToken = (state, token) => {
   window.localStorage.removeItem("token");
   window.localStorage.removeItem("username");
   window.localStorage.removeItem("password");
-  console.log("intenando salir")
+  console.log("intenando salir");
 };
 
 export const setMe = (state, me) => {
