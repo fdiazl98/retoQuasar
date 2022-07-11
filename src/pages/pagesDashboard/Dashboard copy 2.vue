@@ -1,19 +1,22 @@
 <template>
   <q-page padding>
-    <h1 @click="submitForm">hola</h1>
-    <q-btn
-      label="Agregar"
-      type="submit"
-      color="primary"
-      margin-top="10px"
-      @click="clickAgregar"
-    />
+    <div class="q-pa-md">
+      <div class="q-gutter-md" style="max-width: 300px"></div>
+      <q-btn
+        label="Agregar"
+        type="submit"
+        color="primary"
+        margin-top="10px"
+        @click="clickAgregar"
+      />
+    </div>
     <apexchart
       type="bar"
       height="350"
-      v-model:options="chartOptions"
+      :options="chartOptions"
       :series="series"
     ></apexchart>
+
     <div class="q-pa-md">
       <q-table
         title="Articulos"
@@ -70,7 +73,6 @@
             />
             <q-input filled v-model="fila.foto" label="Foto" />
             <q-input filled v-model="fila.id" label="Id" />
-            <q-input filled v-model="fila.idCategoria" label="Id Categoria" />
             <q-input filled v-model="fila.idCategoria" label="Id Categoria" />
             <q-input filled v-model="fila.preciocompra" label="Precio Compra" />
             <q-input filled v-model="fila.precioventa" label="Precio Venta" />
@@ -180,110 +182,180 @@ import { useQuasar } from "quasar";
 import { ref } from "@vue/reactivity";
 import { api } from "boot/axios";
 import { mapActions } from "vuex";
-import { onUpdated } from "vue";
-// const listade = [44, 55, 41, 67, 22, 43, 21, 33, 45, 31, 87, 65, 35];
+import { useStore } from "vuex";
+
 export default {
   setup() {
-    //variables
-    let listado = ref([]);
-    let accion = ref("");
-    let mostrarModal = ref();
-    let fila = ref({});
-    //--------------grafica---------------------------------------------
-
-    //------------------------------------------------------------------
-    const submitForm = async () => {
-      await api.get("api/Articulos/Get").then((response) => {
-        return (listado.value = response.data);
-      });
-      let categorias = [];
-      for (const iterator of listado.value) {
-        categorias.push(iterator.codigo);
-      }
-
-      chartOptions.value.xaxis.categories = categorias;
-      console.log(chartOptions);
-
-      // console.log(chartOptions.xaxis.categories);
-      return (listado.value = response.data);
+    console.log("setup");
+    return {
+      columns,
+      date: "",
+      search: "",
+      options: [
+        {
+          label: "Activo",
+          value: 1,
+        },
+        {
+          label: "Inactivo",
+          value: 2,
+        },
+      ],
     };
-    let chartOptions = ref({
-      // annotations: {
-      //   points: [
-      //     {
-      //       x: "Bananas",
-      //       seriesIndex: 0,
-      //       label: {
-      //         borderColor: "#775DD0",
-      //         offsetY: 0,
-      //         style: {
-      //           color: "#fff",
-      //           background: "#775DD0",
-      //         },
-      //         text: "Bananas are good",
-      //       },
-      //     },
-      //   ],
-      // },
-      chart: {
-        height: 350,
-        type: "bar",
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 10,
-          columnWidth: "50%",
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        width: 2,
-      },
+  },
+  data() {
+    console.log("data");
 
-      grid: {
-        row: {
-          colors: ["#fff", "#f2f2f2"],
-        },
+    return {
+      listado: [],
+      fila: {
+        id: 5,
+        codigo: "",
+        descripcion: "",
+        foto: "",
+        idCategoria: null,
+        preciocompra: null,
+        precioventa: null,
+        fechacreacion: "",
+        fechamodificacion: "",
+        estado: "",
       },
-      xaxis: {
-        labels: {
-          rotate: -45,
+      accion: "",
+      mostrarModal: false,
+      //grafica--------------------------
+      series: [
+        {
+          name: "Inflation",
+          //ejey----
+          data: [],
+          // data: this.$store.state.auth.ejey,
         },
-        categories: [1, 2, 4, 5],
-        tickPlacement: "on",
-      },
-      yaxis: {
+      ],
+      chartOptions: {
+        chart: {
+          height: 350,
+          type: "bar",
+        },
+        plotOptions: {
+          bar: {
+            borderRadius: 10,
+            dataLabels: {
+              position: "top", // top, center, bottom
+            },
+          },
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function (val) {
+            return val;
+          },
+          offsetY: -20,
+          style: {
+            fontSize: "12px",
+            colors: ["#304758"],
+          },
+        },
+
+        xaxis: {
+          //ejex----
+          // categories: this.$store.state.auth.ejex,
+          categories: [],
+          position: "bottom",
+          axisBorder: {
+            show: false,
+          },
+          axisTicks: {
+            show: false,
+          },
+          crosshairs: {
+            fill: {
+              type: "gradient",
+              gradient: {
+                colorFrom: "#D8E3F0",
+                colorTo: "#BED1E6",
+                stops: [0, 100],
+                opacityFrom: 0.4,
+                opacityTo: 0.5,
+              },
+            },
+          },
+          tooltip: {
+            enabled: true,
+          },
+        },
+        yaxis: {
+          axisBorder: {
+            show: false,
+          },
+          axisTicks: {
+            show: false,
+          },
+          labels: {
+            show: false,
+            formatter: function (val) {
+              return val + "%";
+            },
+          },
+        },
         title: {
-          text: "Servings",
+          text: "cantidad por Id(Movimientos)",
+          floating: true,
+          offsetY: 330,
+          align: "center",
+          style: {
+            color: "#444",
+          },
         },
       },
-      fill: {
-        type: "gradient",
-        gradient: {
-          shade: "light",
-          type: "horizontal",
-          shadeIntensity: 0.25,
-          gradientToColors: undefined,
-          inverseColors: true,
-          opacityFrom: 0.85,
-          opacityTo: 0.85,
-          stops: [50, 0, 100],
-        },
-      },
-    });
+    };
+  },
+  methods: {
+    ...mapActions("auth", ["setejex", "setejey"]),
+    async submitForm() {
+      await api.get("api/Articulos/Get").then((response) => {
+        return (this.listado = response.data);
+      });
 
-    const CreateRow = async () => {
-      console.log(fila.value);
+      var arr = [];
+      var arr2 = [];
+      for (const iterator of this.listado) {
+        arr.push(iterator.precioventa);
+        arr2.push(iterator.codigo);
+      }
+      // this.setejex(arr2);
+      this.chartOptions.xaxis.categories = arr2;
+      this.series.data = arr;
+      // this.setejey(arr);
+      // console.log(this.$store.state.auth);
+      console.log(this.chartOptions);
+
+      // commit("setejex", arr2);
+      // store.state.auth.ejey = arr2;
+    },
+    async CreateRow() {
       await api
-        .post(`api/Articulos/${accion.value}`, fila.value)
+        .post(`api/Articulos/${this.accion}`, this.fila)
         .then((response) => {
-          console.log(response.data);
-          submitForm();
-          mostrarModal.value = false;
+          this.submitForm();
+          this.fila = {
+            id: 5,
+            codigo: "",
+            descripcion: "",
+            foto: "",
+            idCategoria: null,
+            preciocompra: null,
+            precioventa: null,
+            fechacreacion: "",
+            fechamodificacion: "",
+            estado: "",
+          };
+          this.mostrarModal = false;
         });
-      fila.value = {
+    },
+    clickAgregar() {
+      this.accion = "Crear";
+      this.mostrarModal = true;
+      this.fila = {
         id: 5,
         codigo: "",
         descripcion: "",
@@ -295,15 +367,11 @@ export default {
         fechamodificacion: "",
         estado: "",
       };
-    };
-    const clickAgregar = () => {
-      accion.value = "Crear";
-      mostrarModal.value = true;
-    };
-    const clickRow = (row) => {
-      accion.value = "Actualizar";
-      mostrarModal.value = true;
-      fila = {
+    },
+    clickRow(row) {
+      this.accion = "Actualizar";
+      this.mostrarModal = true;
+      this.fila = {
         id: row.id,
         codigo: row.codigo,
         descripcion: row.descripcion,
@@ -315,60 +383,17 @@ export default {
         precioventa: row.precioventa,
         estado: row.estado,
       };
-    };
-
-    const UpdateRow = async (rows) => {
-      console.log(rows);
-      verFormulario.value = true;
-    };
-    return {
-      chartOptions,
-      clickRow,
-      clickAgregar,
-      columns,
-      date: "",
-      search: "",
-      UpdateRow,
-      submitForm,
-      CreateRow,
-      listado,
-      fila,
-      accion,
-      mostrarModal,
-
-      options: [
-        {
-          label: "Activo",
-          value: 1,
-        },
-        {
-          label: "Inactivo",
-          value: 2,
-        },
-      ],
-      //--------------------grafica--------------------
-      series: [
-        {
-          name: "Servings",
-          data: [44, 55, 41, 67, 22, 43, 21, 33, 45, 31, 87, 65, 35],
-        },
-      ],
-    };
+    },
   },
-  data() {
-    return {};
-  },
-  methods: {},
-  mounted() {
-    // submitForm();
+  created() {
+    console.log("created");
+
+    // this.submitForm();
   },
   beforeCreate() {
-    console.log("beforeCreate");
+    this.submitForm();
 
-    console.log($store.state.auth.ejex);
     console.log("beforeCreate");
-
-    console.log($store.state.auth.ejey);
   },
 };
 </script>
