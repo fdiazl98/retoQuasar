@@ -51,22 +51,30 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
+            <q-input
+              v-show="showId"
+              :disable="disable"
+              filled
+              v-model="fila.id"
+              label="Id"
+            />
             <q-input filled v-model="fila.codigo" label="Codigo" />
             <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
+              v-show="false"
               filled
               v-model="fila.fechacreacion"
               hint="Fecha de creacion"
               type="date"
             />
             <q-input
+              v-show="false"
               filled
               v-model="fila.fechamodificacion"
               type="date"
               hint="Fecha de modificacion"
             />
             <q-input filled v-model="fila.factor" label="Factor" />
-            <q-input filled v-model="fila.id" label="Id" />
             <q-select
               filled
               v-model="fila.estado"
@@ -152,6 +160,7 @@ import { useQuasar } from "quasar";
 import { ref } from "@vue/reactivity";
 import { api } from "boot/axios";
 import { mapActions } from "vuex";
+let $q;
 
 export default {
   setup() {
@@ -171,6 +180,8 @@ export default {
           value: 2,
         },
       ],
+      showId: true,
+      disable: true,
     };
   },
   data() {
@@ -207,6 +218,18 @@ export default {
         .post(`api/TipoMovimiento/${this.accion}`, this.fila)
         .then((response) => {
           console.log(response);
+          if (response.data.codigomensaje == "230") {
+            $q.notify({
+              type: "negative",
+              message:
+                "El código para el tipo de movimiento ingresado, ya existe.",
+            });
+          } else {
+            $q.notify({
+              type: "positive",
+              message: `Éxito en ${this.accion} registro`,
+            });
+          }
           this.submitForm();
           this.fila = {
             codigo: "",
@@ -221,26 +244,30 @@ export default {
         });
     },
     clickAgregar() {
+      this.showId = false;
+      this.disable = true;
       this.accion = "Crear";
       this.mostrarModal = true;
       this.fila = {
+        id: 0,
         codigo: "",
         descripcion: "",
-        fechacreacion: "",
-        fechamodificacion: "",
+        fechacreacion: null,
+        fechamodificacion: null,
         factor: "",
-        id: "",
         estado: "",
       };
     },
     clickRow(row) {
+      this.showId = true;
+      this.disable = true;
       this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
         codigo: row.codigo,
         descripcion: row.descripcion,
         fechacreacion: row.fechacreacion,
-        fechamodificacion: row.fechamodificacion,
+        fechamodificacion: null,
         factor: row.factor,
         id: row.id,
         estado: row.estado,
@@ -248,6 +275,7 @@ export default {
     },
   },
   mounted() {
+    $q = useQuasar();
     this.submitForm();
   },
 };

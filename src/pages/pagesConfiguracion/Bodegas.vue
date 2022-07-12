@@ -61,22 +61,30 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
+            <q-input
+              v-show="showId"
+              :disable="disable"
+              filled
+              v-model="fila.id"
+              label="Id"
+            />
             <q-input filled v-model="fila.codigo" label="Codigo" />
             <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
+              v-show="false"
               filled
               v-model="fila.fechacreacion"
               hint="Fecha de creacion"
               type="date"
             />
             <q-input
+              v-show="false"
               filled
               v-model="fila.fechamodificacion"
               type="date"
               hint="Fecha de modificacion"
             />
             <q-input filled v-model="fila.foto" label="Foto" />
-            <q-input filled v-model="fila.id" label="Id" />
             <q-select
               filled
               v-model="fila.estado"
@@ -162,6 +170,7 @@ import { useQuasar } from "quasar";
 import { ref } from "@vue/reactivity";
 import { api } from "boot/axios";
 import { mapActions } from "vuex";
+let $q;
 
 export default {
   setup() {
@@ -198,6 +207,8 @@ export default {
       },
       accion: "",
       mostrarModal: false,
+      showId: true,
+      disable: true,
     };
   },
   methods: {
@@ -216,6 +227,23 @@ export default {
       await api
         .post(`api/Bodegas/${this.accion}`, this.fila)
         .then((response) => {
+          console.log(response.data);
+          if (response.data.codigomensaje == "223") {
+            $q.notify({
+              type: "negative",
+              message: `Error en crear, !registro existente¡`,
+            });
+          } else if (response.data.codigomensaje == "229") {
+            $q.notify({
+              type: "negative",
+              message: "El código para la bodega ingresada, ya existe.",
+            });
+          } else {
+            $q.notify({
+              type: "positive",
+              message: `Éxito en ${this.accion} registro`,
+            });
+          }
           this.submitForm();
           this.fila = {
             codigo: "",
@@ -223,41 +251,46 @@ export default {
             fechacreacion: "",
             fechamodificacion: "",
             foto: "",
-            id: "",
+            id: 0,
             estado: "",
           };
           this.mostrarModal = false;
         });
     },
     clickAgregar() {
+      this.showId = false;
+      this.disable = true;
       this.accion = "Crear";
       this.mostrarModal = true;
       this.fila = {
         codigo: "",
         descripcion: "",
-        fechacreacion: "",
-        fechamodificacion: "",
+        fechacreacion: null,
+        fechamodificacion: null,
         foto: "",
-        id: "",
+        id: 0,
         estado: "",
       };
     },
     clickRow(row) {
-      console.log(accion);
-      accion.value = "Actualizar";
+      this.showId = true;
+      this.disable = true;
+      this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
         codigo: row.codigo,
         descripcion: row.descripcion,
         fechacreacion: row.fechacreacion,
-        fechamodificacion: row.fechamodificacion,
+        fechamodificacion: null,
         foto: row.foto,
         id: row.id,
         estado: row.estado,
       };
     },
   },
-  beforeMount() {
+  // beforeMount() {
+  mounted() {
+    $q = useQuasar();
     this.submitForm();
   },
 };

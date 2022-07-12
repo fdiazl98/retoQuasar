@@ -7,7 +7,7 @@
 <script>
 import { defineComponent, defineAsyncComponent } from "vue";
 const chartExample = defineAsyncComponent(() =>
-  import("components/charts/mychart_example.vue")
+  import("src/components/charts/graficaArticulos.vue")
 );
 export default defineComponent({
   name: "PageIndex",

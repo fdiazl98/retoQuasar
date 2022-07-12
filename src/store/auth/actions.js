@@ -3,15 +3,19 @@ import { axios } from "axios";
 
 export const doLogin = async ({ commit, dispatch }, payload) => {
   //aqui se recibe el token de la api
-  await api.post("/api/Login", payload).then((response) => {
-    const token = response.data.token;
-    console.log(response.data);
-    commit("setToken", token);
-    // api.defaults.headers.common.Authorization = "JWT " + token.id;
-    api.defaults.headers.common.Authorization = "Bearer " + token;
+  await api
+    .post("/api/Login", payload)
+    .then((response) => {
+      const token = response.data.token;
+      commit("setToken", token);
+      // api.defaults.headers.common.Authorization = "JWT " + token.id;
+      api.defaults.headers.common.Authorization = "Bearer " + token;
 
-    dispatch("getMe", token);
-  });
+      dispatch("getMe", token);
+    })
+    .catch((data) => {
+      console.log(data);
+    });
 
   // commit("setToken", token);
   //   api.defaults.headers.common.Authorization = 'JWT ' + token.access

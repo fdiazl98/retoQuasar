@@ -51,25 +51,50 @@
         <div class="q-pa-md" style="max-width: 600px">
           <h5 style="width: 500px">{{ accion }}</h5>
           <q-form class="q-gutter-md" @submit.prevent="CreateRow">
+            <q-input
+              v-show="showId"
+              :disable="disable"
+              filled
+              v-model="fila.id"
+              label="Id"
+            />
+
             <q-input filled v-model="fila.codigo" label="Codigo" />
             <q-input filled v-model="fila.descripcion" label="Descripcion" />
             <q-input
+              v-show="false"
               filled
               v-model="fila.fechacreacion"
               hint="Fecha de creacion"
               type="date"
             />
             <q-input
+              v-show="false"
               filled
               v-model="fila.fechamodificacion"
               type="date"
               hint="Fecha de modificacion"
             />
             <q-input filled v-model="fila.foto" label="Foto" />
-            <q-input filled v-model="fila.id" label="Id" />
             <q-input filled v-model="fila.idCategoria" label="Id Categoria" />
-            <q-input filled v-model="fila.preciocompra" label="Precio Compra" />
-            <q-input filled v-model="fila.precioventa" label="Precio Venta" />
+            <q-input
+              type="number"
+              name="points"
+              min="0"
+              step="1"
+              filled
+              v-model="fila.preciocompra"
+              label="Precio Compra"
+            />
+            <q-input
+              type="number"
+              name="points"
+              min="0"
+              step="1"
+              filled
+              v-model="fila.precioventa"
+              label="Precio Venta"
+            />
             <q-select
               filled
               v-model="fila.estado"
@@ -177,6 +202,7 @@ import { ref } from "@vue/reactivity";
 import { api } from "boot/axios";
 import { mapActions } from "vuex";
 import { useStore } from "vuex";
+let $q;
 
 export default {
   setup() {
@@ -217,6 +243,8 @@ export default {
       },
       accion: "",
       mostrarModal: false,
+      showId: true,
+      disable: true,
     };
   },
   methods: {
@@ -228,7 +256,7 @@ export default {
       // const toPath = this.$route.query.to || "/admin";
       // this.$router.push(toPath);
       await api.get("api/Articulos/Get").then((response) => {
-        //   // commit('setMe', response.data)
+        console.log(response);
         return (this.listado = response.data);
       });
 
@@ -250,9 +278,30 @@ export default {
         .post(`api/Articulos/${this.accion}`, this.fila)
         .then((response) => {
           console.log(response);
+          if (response.data.codigomensaje == "223") {
+            $q.notify({
+              type: "negative",
+              message: `Error en crear, !registro existente¡`,
+            });
+          } else if (response.data.codigomensaje == "228") {
+            $q.notify({
+              type: "negative",
+              message: "El código para el producto ingresado, ya existe.",
+            });
+          } else if (response.data.codigomensaje == "227") {
+            $q.notify({
+              type: "negative",
+              message: "La categoria ingresada no existe",
+            });
+          } else {
+            $q.notify({
+              type: "positive",
+              message: `Éxito en ${this.accion} registro`,
+            });
+          }
           this.submitForm();
           this.fila = {
-            id: 5,
+            id: 0,
             codigo: "",
             descripcion: "",
             foto: "",
@@ -267,22 +316,26 @@ export default {
         });
     },
     clickAgregar() {
+      this.showId = false;
+      this.disable = true;
       this.accion = "Crear";
       this.mostrarModal = true;
       this.fila = {
-        id: 5,
+        id: 0,
         codigo: "",
         descripcion: "",
         foto: "",
         idCategoria: null,
         preciocompra: null,
         precioventa: null,
-        fechacreacion: "",
-        fechamodificacion: "",
+        fechacreacion: null,
+        fechamodificacion: null,
         estado: "",
       };
     },
     clickRow(row) {
+      this.showId = true;
+      this.disable = true;
       this.accion = "Actualizar";
       this.mostrarModal = true;
       this.fila = {
@@ -290,7 +343,7 @@ export default {
         codigo: row.codigo,
         descripcion: row.descripcion,
         fechacreacion: row.fechacreacion,
-        fechamodificacion: row.fechamodificacion,
+        fechamodificacion: null,
         foto: row.foto,
         idCategoria: row.idCategoria,
         preciocompra: row.preciocompra,
@@ -300,6 +353,8 @@ export default {
     },
   },
   mounted() {
+    $q = useQuasar();
+
     this.submitForm();
   },
 };

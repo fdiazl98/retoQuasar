@@ -59,10 +59,9 @@ import { mapActions } from "vuex";
 let $q;
 
 export default {
-
   name: "Login",
   data() {
-    const $q = useQuasar()
+    const $q = useQuasar();
     return {
       login: {
         username: "",
@@ -78,7 +77,7 @@ export default {
           type: "negative",
           message: "Los datos ingresados no son validos.",
         });
-      } else if (this.login.password.length < 3) {
+      } else if (this.login.password.length < 4) {
         $q.notify({
           type: "negative",
           message: "La contraseña debe ser mayor a 6",
@@ -90,8 +89,6 @@ export default {
           await this.doLogin(this.login);
           const toPath = this.$route.query.to || "/admin";
           this.$router.push(toPath);
-
-
         } catch (err) {
           if (err.response.data.detail) {
             $q.notify({
