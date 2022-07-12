@@ -39,7 +39,7 @@ export default defineComponent({
         month: "short",
         // day: "numeric",
       }).format(new Date(element.fechacreacion));
-      if (meses.includes(monthNameLong)) meses.push(monthNameLong);
+      if (!meses.includes(monthNameLong)) meses.push(monthNameLong);
       // monthNameLong = monthNameLong.toString();
       this.series[0].data.push(element.preciocompra);
       this.series[1].data.push(element.precioventa);
